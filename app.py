@@ -22,22 +22,33 @@ st.set_page_config(
 
 # --- BACK BUTTON STATE MANAGEMENT ---
 # Initialize page history in session state if it doesn't exist
-if 'page_history' not in st.session_state:
-    st.session_state.page_history = []
+# --- NAVIGATION WITH QUERY PARAMS (for native back gesture support) ---
+PAGE_MAPPING = {
+    'home': '🏠 Home',
+    'calendar': '📅 Workout Calendar',
+    'programs': '💪 Workout Programs',
+    'library': '📚 Exercise Library',
+    'collection': '🎬 My Collection'
+}
+
+PAGE_REVERSE_MAPPING = {v: k for k, v in PAGE_MAPPING.items()}
+
+def get_current_page_from_url():
+    """Read page from URL query params"""
+    params = st.query_params
+    page_key = params.get('page', 'home')
+    return PAGE_MAPPING.get(page_key, '🏠 Home')
 
 def navigate_to(page_name):
-    """Navigate to a new page and add current page to history"""
-    if st.session_state.nav_page != page_name:
-        st.session_state.page_history.append(st.session_state.nav_page)
-        st.session_state.nav_page = page_name
-        st.rerun()
+    """Navigate to a new page using query params (creates browser history)"""
+    page_key = PAGE_REVERSE_MAPPING.get(page_name, 'home')
+    st.query_params['page'] = page_key
+    st.rerun()
 
 def go_back():
-    """Go back to the previous page in history"""
-    if st.session_state.page_history:
-        previous_page = st.session_state.page_history.pop()
-        st.session_state.nav_page = previous_page
-        st.rerun()
+    """Go back - handled by browser with query params"""
+    # Browser back button will handle this automatically
+    pass
 
 # --- EXERCISE GIF VIEWER COMPONENT ---
 def render_exercise_demo(exercise_name="Exercise", exercise_type="general"):
@@ -1422,73 +1433,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- LOGIN/AUTHENTICATION SYSTEM ---
-def show_login_page():
-    """Display the login page"""
-    st.markdown("""
-    <div class="login-container">
-        <div class="login-header">
-            <div class="login-avatar">💎</div>
-            <div class="login-title">JADE FITNESS</div>
-            <div class="login-subtitle">YOUR TRANSFORMATION STARTS HERE</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # Login form
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        st.markdown("### 👋 Welcome, Jade!")
-        st.markdown("*Your personal fitness sanctuary awaits*")
-        
-        # Features showcase
-        st.markdown("""
-        <div class="welcome-features">
-            <div class="feature-item">
-                <div class="feature-icon">💪</div>
-                <div class="feature-text">Workout Programs</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">📅</div>
-                <div class="feature-text">Smart Calendar</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">🔥</div>
-                <div class="feature-text">Streak Tracking</div>
-            </div>
-            <div class="feature-item">
-                <div class="feature-icon">🎮</div>
-                <div class="feature-text">3D Exercises</div>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-        
-        # Simple PIN or password entry
-        st.markdown("---")
-        password = st.text_input("🔐 Enter your PIN (default: 1234)", type="password", key="login_pin")
-        
-        if st.button("✨ Enter My Fitness Hub", use_container_width=True, type="primary"):
-            if password == "1234" or password == "jade" or password == "":
-                st.session_state.logged_in = True
-                st.session_state.user_name = "Jade"
-                # Initialize calendar and populate with sample workouts if empty
-                utils.init_calendar()
-                utils.populate_sample_workouts()
-                st.balloons()
-                st.rerun()
-            else:
-                st.error("❌ Incorrect PIN")
-
-# Check if user is logged in
-if 'logged_in' not in st.session_state:
-    st.session_state.logged_in = False
-
-# Show login page if not logged in
-if not st.session_state.logged_in:
-    show_login_page()
-    st.stop()
-
-# Navigation is handled by sidebar and bottom nav at end of file
+# Read current page from URL query params
+current_page_from_url = get_current_page_from_url()
 
 # --- MOTIVATIONAL QUOTES ---
 quotes = [
@@ -1533,34 +1479,32 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Navigation - with session state support for quick action buttons
+    # Navigation - using query params for native back gesture support
     st.markdown("## 🧭 Navigation")
     
     nav_options = ["🏠 Home", "📅 Workout Calendar", "💪 Workout Programs", "📚 Exercise Library", "🎬 My Collection"]
     
-    # Initialize nav_page if not exists
-    if 'nav_page' not in st.session_state:
-        st.session_state.nav_page = nav_options[0]
+    # Get current page from URL
+    current_page = current_page_from_url
+    current_index = nav_options.index(current_page) if current_page in nav_options else 0
     
-    # Create a callback function to update session state
+    # Create a callback function to navigate via query params
     def on_nav_change():
-        st.session_state.nav_page = st.session_state.main_nav
-    
-    # Use session state as value
-    if st.session_state.nav_page not in nav_options:
-        st.session_state.nav_page = nav_options[0]
+        selected = st.session_state.main_nav
+        page_key = PAGE_REVERSE_MAPPING.get(selected, 'home')
+        st.query_params['page'] = page_key
 
     st.radio(
         "Choose a section:",
         nav_options,
-        index=nav_options.index(st.session_state.nav_page),
+        index=current_index,
         label_visibility="collapsed",
         key="main_nav",
         on_change=on_nav_change
     )
     
-    # Use session state as the source of truth for page
-    page = st.session_state.nav_page
+    # Use URL query params as the source of truth for page
+    page = current_page_from_url
     
     st.markdown("---")
     
@@ -1597,19 +1541,6 @@ with st.sidebar:
         <div style="font-family: 'Rajdhani', sans-serif; color: #ffcc80; font-size: 0.8rem;">DAY STREAK</div>
     </div>
     """, unsafe_allow_html=True)
-    
-    st.markdown("---")
-    
-    # Logout button
-    if st.button("🚪 Logout", use_container_width=True):
-        st.session_state.logged_in = False
-        st.session_state.nav_page = "🏠 Home"
-        st.rerun()
-
-# --- BACK BUTTON (Top of page, not on Home) ---
-if page != "🏠 Home":
-    if st.button("⬅️ Retour", key="top_back_btn"):
-        go_back()
 
 # --- MAIN CONTENT ---
 
