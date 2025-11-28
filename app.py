@@ -2749,72 +2749,71 @@ st.markdown("""
 # --- STYLISH MOBILE NAVIGATION (Native Streamlit Buttons) ---
 st.markdown("""
 <style>
-    /* Hide on PC */
+    /* Floating Glassmorphism Bottom Bar - ALWAYS VISIBLE */
     .mobile-nav-container {
-        display: none;
+        display: block !important;
+        position: fixed !important;
+        bottom: 20px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 90% !important;
+        max-width: 500px !important;
+        background: rgba(13, 27, 42, 0.9) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(0, 212, 255, 0.3) !important;
+        border-radius: 30px !important;
+        z-index: 999999 !important;
+        padding: 12px 15px !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 212, 255, 0.1) !important;
+    }
+    
+    /* Horizontal layout */
+    .mobile-nav-container [data-testid="stHorizontalBlock"] {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+        gap: 8px !important;
+    }
+    
+    .mobile-nav-container [data-testid="column"] {
+        flex: 1 !important;
+        min-width: 0 !important;
+        padding: 0 !important;
+        text-align: center !important;
+    }
+    
+    /* Nav Buttons - Clean transparent style */
+    .mobile-nav-container .stButton button {
+        width: 100% !important;
+        padding: 10px 5px !important;
+        font-size: 1.5rem !important;
+        line-height: 1 !important;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        color: #90e0ef !important;
+        border-radius: 15px !important;
+        transition: all 0.3s ease !important;
     }
 
-    /* MOBILE STYLES */
+    .mobile-nav-container .stButton button:hover {
+        color: #00d4ff !important;
+        background: rgba(0, 212, 255, 0.15) !important;
+        transform: scale(1.1) !important;
+    }
+    
+    /* Add padding to main content */
+    .main .block-container {
+        padding-bottom: 120px !important;
+    }
+    
+    /* MOBILE: Hide Sidebar */
     @media (max-width: 768px) {
-        /* Hide Sidebar on mobile */
         section[data-testid="stSidebar"] {
             display: none !important;
-        }
-        
-        /* Floating Glassmorphism Bottom Bar */
-        .mobile-nav-container {
-            display: block;
-            position: fixed;
-            bottom: 20px;
-            left: 5%;
-            width: 90%;
-            background: rgba(13, 27, 42, 0.85);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 25px;
-            z-index: 99999;
-            padding: 10px 5px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* Horizontal layout */
-        .mobile-nav-container [data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: space-around !important;
-            align-items: center !important;
-            gap: 5px !important;
-        }
-        
-        .mobile-nav-container [data-testid="column"] {
-            flex: 1 !important;
-            min-width: 0 !important;
-            padding: 0 !important;
-            text-align: center !important;
-        }
-        
-        /* Nav Buttons */
-        .mobile-nav-container .stButton button {
-            width: 100%;
-            padding: 5px 0 !important;
-            font-size: 1.4rem;
-            line-height: 1;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            color: #90e0ef !important;
-        }
-
-        .mobile-nav-container .stButton button:hover {
-            color: #00d4ff !important;
-            transform: scale(1.1);
-        }
-        
-        /* Add padding to main content */
-        .main .block-container {
-            padding-bottom: 120px !important;
         }
     }
 </style>
