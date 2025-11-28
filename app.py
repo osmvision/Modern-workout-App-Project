@@ -46,8 +46,8 @@ def navigate_to(page_name):
     st.rerun()
 
 def go_back():
-    """Go back - handled by browser with query params"""
-    # Browser back button will handle this automatically
+    """Go back to home page"""
+    navigate_to('🏠 Home')
     pass
 
 # --- EXERCISE GIF VIEWER COMPONENT ---
@@ -1539,6 +1539,43 @@ with st.sidebar:
         <div style="font-size: 2rem;">{'🔥' * min(streak_data['current_streak'], 5) if streak_data['current_streak'] > 0 else '💪'}</div>
         <div style="font-family: 'Orbitron', sans-serif; font-size: 2rem; color: #ffa500;">{streak_data['current_streak']}</div>
         <div style="font-family: 'Rajdhani', sans-serif; color: #ffcc80; font-size: 0.8rem;">DAY STREAK</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+# --- BACK BUTTON (for non-home pages) ---
+if page != "🏠 Home":
+    # JavaScript-based back button that uses browser history
+    st.markdown("""
+    <style>
+        .back-btn-container {
+            margin-bottom: 15px;
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: rgba(0, 119, 182, 0.2);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 25px;
+            color: #00d4ff;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .back-btn:hover {
+            background: rgba(0, 212, 255, 0.3);
+            transform: translateX(-5px);
+            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+        }
+    </style>
+    <div class="back-btn-container">
+        <a class="back-btn" href="?page=home">
+            ⬅️ Retour à l'accueil
+        </a>
     </div>
     """, unsafe_allow_html=True)
 
