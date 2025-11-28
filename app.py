@@ -2751,85 +2751,89 @@ st.markdown("""
 <style>
     /* ===== CYBERPUNK GLASSMORPHISM NAV BAR ===== */
     
-    /* Hide the Streamlit buttons container completely */
-    .mobile-nav-streamlit {
-        display: none !important;
+    /* The floating glass pill container - targets the LAST horizontal block (nav buttons) */
+    [data-testid="stBottom"] {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: transparent !important;
+        padding: 0 !important;
+        z-index: 999999 !important;
     }
     
-    /* The floating glass pill */
-    .cyber-nav {
-        position: fixed !important;
-        bottom: 25px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: 85% !important;
-        max-width: 380px !important;
-        height: 65px !important;
-        background: rgba(10, 15, 30, 0.75) !important;
-        backdrop-filter: blur(20px) saturate(180%) !important;
-        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-        border: 1px solid rgba(0, 212, 255, 0.25) !important;
+    [data-testid="stBottom"] > div {
+        background: transparent !important;
+        padding: 15px !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+    
+    [data-testid="stBottom"] [data-testid="stHorizontalBlock"] {
+        background: rgba(10, 15, 30, 0.85) !important;
+        backdrop-filter: blur(25px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(25px) saturate(180%) !important;
+        border: 1px solid rgba(0, 212, 255, 0.3) !important;
         border-radius: 35px !important;
-        z-index: 999999 !important;
+        padding: 8px 15px !important;
+        max-width: 400px !important;
+        width: 90% !important;
+        margin: 0 auto !important;
+        box-shadow: 
+            0 10px 40px rgba(0, 0, 0, 0.5),
+            0 0 30px rgba(0, 212, 255, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
         display: flex !important;
         justify-content: space-around !important;
         align-items: center !important;
-        padding: 0 20px !important;
-        box-shadow: 
-            0 10px 40px rgba(0, 0, 0, 0.5),
-            0 0 30px rgba(0, 212, 255, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+        gap: 5px !important;
     }
     
-    /* Neon glow line on top */
-    .cyber-nav::before {
-        content: '';
-        position: absolute;
-        top: -1px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 60%;
-        height: 2px;
-        background: linear-gradient(90deg, transparent, #00d4ff, transparent);
-        border-radius: 2px;
+    /* Column styling */
+    [data-testid="stBottom"] [data-testid="column"] {
+        padding: 0 !important;
+        flex: 1 !important;
     }
     
-    /* Nav icons */
-    .cyber-nav-item {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-        padding: 10px 12px !important;
-        border-radius: 20px !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        text-decoration: none !important;
-        -webkit-tap-highlight-color: transparent !important;
-    }
-    
-    .cyber-nav-item:hover {
-        background: rgba(0, 212, 255, 0.15) !important;
-    }
-    
-    .cyber-nav-item:active {
-        transform: scale(0.9) !important;
-    }
-    
-    .cyber-nav-icon {
+    /* FORCE transparent buttons - override global theme */
+    [data-testid="stBottom"] .stButton > button,
+    [data-testid="stBottom"] .stButton button,
+    [data-testid="stBottom"] button {
+        background: transparent !important;
+        background-color: transparent !important;
+        background-image: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 12px 8px !important;
         font-size: 1.5rem !important;
-        filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.5)) !important;
-        transition: all 0.3s ease !important;
+        color: #90e0ef !important;
+        border-radius: 18px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        width: 100% !important;
+        min-height: 50px !important;
+        line-height: 1 !important;
+        -webkit-tap-highlight-color: transparent !important;
+        filter: drop-shadow(0 0 6px rgba(0, 212, 255, 0.4)) !important;
     }
     
-    .cyber-nav-item:hover .cyber-nav-icon {
-        filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.9)) !important;
-        transform: translateY(-3px) scale(1.1) !important;
+    [data-testid="stBottom"] .stButton > button:hover,
+    [data-testid="stBottom"] .stButton button:hover,
+    [data-testid="stBottom"] button:hover {
+        background: rgba(0, 212, 255, 0.2) !important;
+        color: #00d4ff !important;
+        transform: scale(1.15) translateY(-3px) !important;
+        box-shadow: none !important;
+        filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.8)) !important;
+    }
+    
+    [data-testid="stBottom"] .stButton > button:active,
+    [data-testid="stBottom"] button:active {
+        transform: scale(0.95) !important;
     }
     
     /* Add bottom padding to content */
     .main .block-container {
-        padding-bottom: 120px !important;
+        padding-bottom: 100px !important;
     }
     
     /* Hide sidebar on mobile */
@@ -2839,68 +2843,28 @@ st.markdown("""
         }
     }
 </style>
-
-<nav class="cyber-nav">
-    <a class="cyber-nav-item" onclick="navigateTo('home')">
-        <span class="cyber-nav-icon">🏠</span>
-    </a>
-    <a class="cyber-nav-item" onclick="navigateTo('calendar')">
-        <span class="cyber-nav-icon">📅</span>
-    </a>
-    <a class="cyber-nav-item" onclick="navigateTo('programs')">
-        <span class="cyber-nav-icon">💪</span>
-    </a>
-    <a class="cyber-nav-item" onclick="navigateTo('library')">
-        <span class="cyber-nav-icon">📚</span>
-    </a>
-    <a class="cyber-nav-item" onclick="navigateTo('collection')">
-        <span class="cyber-nav-icon">🎬</span>
-    </a>
-</nav>
-
-<script>
-function navigateTo(page) {
-    const pages = {
-        'home': '🏠 Home',
-        'calendar': '📅 Workout Calendar', 
-        'programs': '💪 Workout Programs',
-        'library': '📚 Exercise Library',
-        'collection': '🎬 My Collection'
-    };
-    
-    // Find and click the corresponding hidden Streamlit button
-    const buttons = document.querySelectorAll('.mobile-nav-streamlit button');
-    const pageNames = ['home', 'calendar', 'programs', 'library', 'collection'];
-    const index = pageNames.indexOf(page);
-    if (buttons[index]) {
-        buttons[index].click();
-    }
-}
-</script>
 """, unsafe_allow_html=True)
 
-# Hidden Streamlit buttons for actual navigation
-st.markdown('<div class="mobile-nav-streamlit">', unsafe_allow_html=True)
-mob_col1, mob_col2, mob_col3, mob_col4, mob_col5 = st.columns(5)
-
-with mob_col1:
-    if st.button("🏠", key="mob_home", use_container_width=True):
-        navigate_to("🏠 Home")
-
-with mob_col2:
-    if st.button("📅", key="mob_cal", use_container_width=True):
-        navigate_to("📅 Workout Calendar")
-
-with mob_col3:
-    if st.button("💪", key="mob_prog", use_container_width=True):
-        navigate_to("💪 Workout Programs")
-
-with mob_col4:
-    if st.button("📚", key="mob_lib", use_container_width=True):
-        navigate_to("📚 Exercise Library")
-
-with mob_col5:
-    if st.button("🎬", key="mob_col", use_container_width=True):
-        navigate_to("🎬 My Collection")
-
-st.markdown('</div>', unsafe_allow_html=True)
+# Bottom navigation using Streamlit's bottom container
+with st.container():
+    bot_col1, bot_col2, bot_col3, bot_col4, bot_col5 = st.columns(5)
+    
+    with bot_col1:
+        if st.button("🏠", key="mob_home", use_container_width=True):
+            navigate_to("🏠 Home")
+    
+    with bot_col2:
+        if st.button("📅", key="mob_cal", use_container_width=True):
+            navigate_to("📅 Workout Calendar")
+    
+    with bot_col3:
+        if st.button("💪", key="mob_prog", use_container_width=True):
+            navigate_to("💪 Workout Programs")
+    
+    with bot_col4:
+        if st.button("📚", key="mob_lib", use_container_width=True):
+            navigate_to("📚 Exercise Library")
+    
+    with bot_col5:
+        if st.button("🎬", key="mob_col", use_container_width=True):
+            navigate_to("🎬 My Collection")
