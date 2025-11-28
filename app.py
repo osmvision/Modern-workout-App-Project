@@ -19,164 +19,84 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- 3D MODEL VIEWER COMPONENT ---
-def render_3d_model_viewer(animation_name="idle", exercise_name="Exercise"):
-    """Render a 3D model viewer with the specified animation"""
+# --- EXERCISE GIF VIEWER COMPONENT ---
+def render_exercise_demo(exercise_name="Exercise", exercise_type="general"):
+    """Render an animated GIF demonstration of the exercise"""
     
-    # Map exercise names to Mixamo animation URLs (using free GLB models)
-    # These are placeholder URLs - in production, you'd use your own hosted models
-    ANIMATION_MODELS = {
-        "squats": {
-            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
-            "poster": "https://fitnessprogramer.com/wp-content/uploads/2021/02/SQUAT.gif"
-        },
-        "push_ups": {
-            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
-            "poster": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Push-up.gif"
-        },
-        "plank": {
-            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
-            "poster": "https://fitnessprogramer.com/wp-content/uploads/2021/02/plank.gif"
-        },
-        "lunges": {
-            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
-            "poster": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Lunges.gif"
-        },
-        "default": {
-            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
-            "poster": ""
-        }
+    # Map exercise types/names to animated GIF URLs from fitness websites
+    EXERCISE_GIFS = {
+        # Lower Body
+        "squats": "https://fitnessprogramer.com/wp-content/uploads/2021/02/SQUAT.gif",
+        "squat": "https://fitnessprogramer.com/wp-content/uploads/2021/02/SQUAT.gif",
+        "lunges": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lunge.gif",
+        "lunge": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lunge.gif",
+        "deadlift": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Deadlift.gif",
+        "hip_thrust": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Hip-Thrust.gif",
+        "glute_bridge": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Glute-Bridge.gif",
+        "calf_raise": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Calf-Raise.gif",
+        "leg_press": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Leg-Press.gif",
+        "leg_curl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Leg-Curl.gif",
+        
+        # Upper Body
+        "push_up": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Push-up.gif",
+        "push_ups": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Push-up.gif",
+        "bench_press": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Bench-Press.gif",
+        "shoulder_press": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Shoulder-Press.gif",
+        "bicep_curl": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Curl.gif",
+        "tricep_dip": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Triceps-Dip.gif",
+        "lateral_raise": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Dumbbell-Lateral-Raise.gif",
+        "row": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Bent-Over-Barbell-Row.gif",
+        "pull_up": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Pull-up.gif",
+        
+        # Core
+        "plank": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Front-Plank.gif",
+        "crunch": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Crunch.gif",
+        "sit_up": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Sit-up.gif",
+        "leg_raise": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Lying-Leg-Raise.gif",
+        "russian_twist": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Russian-Twist.gif",
+        "mountain_climber": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Mountain-Climber.gif",
+        
+        # Cardio/HIIT
+        "burpee": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Burpee.gif",
+        "jumping_jack": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Jumping-jack.gif",
+        "high_knees": "https://fitnessprogramer.com/wp-content/uploads/2021/02/High-Knee-Run.gif",
+        "jump_squat": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Jump-Squat.gif",
+        "box_jump": "https://fitnessprogramer.com/wp-content/uploads/2021/06/Box-Jump.gif",
+        
+        # Full Body
+        "kettlebell_swing": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Kettlebell-Swing.gif",
+        "clean_and_press": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Barbell-Clean-and-Press.gif",
+        
+        # Default workout type GIFs
+        "lower_body": "https://fitnessprogramer.com/wp-content/uploads/2021/02/SQUAT.gif",
+        "upper_body": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Push-up.gif",
+        "core": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Front-Plank.gif",
+        "hiit": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Burpee.gif",
+        "cardio": "https://fitnessprogramer.com/wp-content/uploads/2021/02/High-Knee-Run.gif",
+        "full_body": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Burpee.gif",
+        "yoga": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Cobra-Stretch.gif",
+        "stretching": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Standing-Hamstring-Stretch.gif",
+        "pilates": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Crunch.gif",
+        
+        # Default
+        "default": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Jumping-jack.gif"
     }
     
-    anim_key = animation_name.lower().replace(" ", "_").replace("-", "_")
-    model_data = ANIMATION_MODELS.get(anim_key, ANIMATION_MODELS["default"])
+    # Get the right GIF for this exercise
+    exercise_key = exercise_name.lower().replace(" ", "_").replace("-", "_")
+    type_key = exercise_type.lower().replace(" ", "_").replace("-", "_")
     
-    html_content = f'''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
-        <style>
-            body {{
-                margin: 0;
-                padding: 0;
-                background: transparent;
-                overflow: hidden;
-            }}
-            model-viewer {{
-                width: 100%;
-                height: 350px;
-                background: linear-gradient(135deg, rgba(0, 30, 60, 0.9) 0%, rgba(0, 60, 90, 0.8) 100%);
-                border-radius: 15px;
-                border: 2px solid rgba(0, 212, 255, 0.3);
-                box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
-            }}
-            model-viewer::part(default-progress-bar) {{
-                background: linear-gradient(90deg, #00d4ff, #00b4d8);
-            }}
-            .controls {{
-                display: flex;
-                justify-content: center;
-                gap: 10px;
-                margin-top: 10px;
-                padding: 10px;
-            }}
-            .control-btn {{
-                background: linear-gradient(135deg, #0077b6, #00b4d8);
-                color: white;
-                border: 1px solid rgba(0, 212, 255, 0.5);
-                padding: 8px 16px;
-                border-radius: 20px;
-                cursor: pointer;
-                font-family: 'Rajdhani', sans-serif;
-                font-weight: 600;
-                transition: all 0.3s ease;
-            }}
-            .control-btn:hover {{
-                background: linear-gradient(135deg, #00b4d8, #00d4ff);
-                box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
-                transform: translateY(-2px);
-            }}
-            .model-title {{
-                text-align: center;
-                font-family: 'Orbitron', sans-serif;
-                color: #00d4ff;
-                margin-bottom: 10px;
-                font-size: 1.2rem;
-            }}
-            .fallback-gif {{
-                width: 100%;
-                height: 350px;
-                object-fit: contain;
-                background: linear-gradient(135deg, rgba(0, 30, 60, 0.9) 0%, rgba(0, 60, 90, 0.8) 100%);
-                border-radius: 15px;
-                border: 2px solid rgba(0, 212, 255, 0.3);
-            }}
-        </style>
-    </head>
-    <body>
-        <div class="model-title">🏃‍♀️ {exercise_name} - 3D View</div>
-        
-        <model-viewer 
-            id="exercise-model"
-            src="{model_data['model']}"
-            poster="{model_data['poster']}"
-            alt="{exercise_name} 3D Model"
-            auto-rotate
-            camera-controls
-            touch-action="pan-y"
-            interaction-prompt="auto"
-            ar
-            ar-modes="webxr scene-viewer quick-look"
-            shadow-intensity="1"
-            exposure="1"
-            environment-image="neutral"
-            loading="eager"
-        >
-            <div class="progress-bar hide" slot="progress-bar">
-                <div class="update-bar"></div>
-            </div>
-        </model-viewer>
-        
-        <div class="controls">
-            <button class="control-btn" onclick="toggleRotation()">⏸️ Pause Rotation</button>
-            <button class="control-btn" onclick="resetCamera()">🔄 Reset View</button>
-            <button class="control-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
-        </div>
-        
-        <script>
-            const modelViewer = document.getElementById('exercise-model');
-            let isRotating = true;
-            
-            function toggleRotation() {{
-                isRotating = !isRotating;
-                modelViewer.autoRotate = isRotating;
-                event.target.textContent = isRotating ? '⏸️ Pause Rotation' : '▶️ Start Rotation';
-            }}
-            
-            function resetCamera() {{
-                modelViewer.cameraOrbit = '0deg 75deg 105%';
-                modelViewer.fieldOfView = 'auto';
-            }}
-            
-            function toggleFullscreen() {{
-                if (!document.fullscreenElement) {{
-                    modelViewer.requestFullscreen();
-                }} else {{
-                    document.exitFullscreen();
-                }}
-            }}
-            
-            // Touch-friendly zoom and rotate
-            modelViewer.addEventListener('camera-change', () => {{
-                // Smooth camera movements
-            }});
-        </script>
-    </body>
-    </html>
-    '''
+    # Try exercise name first, then type, then default
+    gif_url = EXERCISE_GIFS.get(exercise_key, EXERCISE_GIFS.get(type_key, EXERCISE_GIFS["default"]))
     
-    components.html(html_content, height=450)
+    # Render the exercise demo card
+    st.markdown(f"""
+    <div style="background: linear-gradient(135deg, rgba(0, 30, 60, 0.9) 0%, rgba(0, 60, 90, 0.8) 100%); border-radius: 15px; border: 2px solid rgba(0, 212, 255, 0.3); padding: 15px; box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);">
+        <div style="text-align: center; font-family: 'Orbitron', sans-serif; color: #00d4ff; margin-bottom: 10px; font-size: 1.1rem;">🏃‍♀️ {exercise_name}</div>
+        <img src="{gif_url}" alt="{exercise_name} demonstration" style="width: 100%; max-height: 300px; object-fit: contain; border-radius: 10px; background: rgba(0,0,0,0.3);">
+        <div style="text-align: center; color: #90e0ef; font-size: 0.85rem; margin-top: 10px; font-family: 'Rajdhani', sans-serif;">Watch the form carefully and match the movement</div>
+    </div>
+    """, unsafe_allow_html=True)
 
 # --- FUTURISTIC BLUE THEME CSS FOR JADE ---
 st.markdown("""
@@ -1159,120 +1079,6 @@ st.markdown("""
         }
     }
     
-    /* ===== MOBILE BOTTOM NAVIGATION - HORIZONTAL BAR ===== */
-    .mobile-nav {
-        display: none;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: linear-gradient(180deg, rgba(10, 15, 30, 0.98) 0%, rgba(5, 10, 20, 0.99) 100%);
-        border-top: 2px solid rgba(0, 212, 255, 0.4);
-        padding: 0;
-        z-index: 99999;
-        backdrop-filter: blur(25px);
-        -webkit-backdrop-filter: blur(25px);
-        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6), 0 -2px 20px rgba(0, 212, 255, 0.15);
-    }
-    
-    .mobile-nav-container {
-        display: flex;
-        justify-content: space-evenly;
-        align-items: stretch;
-        width: 100%;
-        max-width: 100%;
-        padding: 0;
-        margin: 0;
-    }
-    
-    .mobile-nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        flex: 1;
-        padding: 12px 8px;
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
-        cursor: pointer;
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        text-decoration: none;
-        -webkit-tap-highlight-color: transparent;
-        position: relative;
-        background: transparent;
-        border: none;
-        min-height: 65px;
-    }
-    
-    .mobile-nav-item::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%) scaleX(0);
-        width: 50%;
-        height: 3px;
-        background: linear-gradient(90deg, #00d4ff, #00b4d8);
-        border-radius: 0 0 3px 3px;
-        transition: transform 0.3s ease;
-    }
-    
-    .mobile-nav-item.active::before {
-        transform: translateX(-50%) scaleX(1);
-    }
-    
-    .mobile-nav-item:active {
-        transform: scale(0.9);
-        background: rgba(0, 212, 255, 0.1);
-    }
-    
-    .mobile-nav-item.active {
-        background: linear-gradient(180deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 180, 216, 0.05) 100%);
-    }
-    
-    .mobile-nav-icon {
-        font-size: 1.6rem;
-        margin-bottom: 4px;
-        transition: all 0.2s ease;
-        filter: grayscale(30%);
-    }
-    
-    .mobile-nav-item.active .mobile-nav-icon {
-        transform: scale(1.1) translateY(-2px);
-        filter: grayscale(0%) drop-shadow(0 0 8px rgba(0, 212, 255, 0.5));
-    }
-    
-    .mobile-nav-label {
-        font-family: 'Rajdhani', sans-serif;
-        font-size: 0.7rem;
-        color: #90e0ef;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        transition: all 0.2s ease;
-        opacity: 0.8;
-    }
-    
-    .mobile-nav-item.active .mobile-nav-label {
-        color: #00d4ff;
-        opacity: 1;
-        font-weight: 700;
-        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
-    }
-    
-    /* Active indicator dot */
-    .mobile-nav-item.active::after {
-        content: '';
-        position: absolute;
-        bottom: max(8px, env(safe-area-inset-bottom));
-        left: 50%;
-        transform: translateX(-50%);
-        width: 5px;
-        height: 5px;
-        background: #00d4ff;
-        border-radius: 50%;
-        box-shadow: 0 0 10px #00d4ff;
-    }
-    
     /* ===== STREAK SYSTEM STYLES ===== */
     .streak-container {
         background: linear-gradient(135deg, rgba(255, 107, 0, 0.15), rgba(255, 165, 0, 0.1));
@@ -1625,121 +1431,152 @@ if not st.session_state.logged_in:
     st.stop()
 
 # --- MOBILE BOTTOM NAVIGATION ---
-# Using Streamlit buttons styled as a bottom navigation bar
-# This preserves session state (no page reload issues)
-
 # Get current page from session state  
 current_nav_page = st.session_state.get('nav_page', '🏠 Home')
 
-# Create mobile bottom nav container with Streamlit buttons
-st.markdown("""
-<style>
-/* Mobile bottom navigation using Streamlit buttons */
-.mobile-bottom-nav {
-    display: none;
+# Navigation mapping
+NAV_PAGES = {
+    'home': '🏠 Home',
+    'calendar': '📅 Workout Calendar',
+    'programs': '💪 Workout Programs', 
+    'library': '📚 Exercise Library',
+    'collection': '🎬 My Collection'
 }
 
-@media (max-width: 768px) {
-    .mobile-bottom-nav {
-        display: block !important;
+# Handle navigation from URL params (for mobile nav clicks)
+query_params = st.query_params
+if 'page' in query_params:
+    requested_page = NAV_PAGES.get(query_params['page'])
+    if requested_page and requested_page != current_nav_page:
+        st.session_state.nav_page = requested_page
+        st.query_params.clear()
+        st.rerun()
+
+# Inject mobile bottom navigation bar using HTML/CSS/JS
+# This creates a TRUE fixed bottom bar that doesn't scroll with content
+def get_active_class(nav_key):
+    return "active" if NAV_PAGES.get(nav_key) == current_nav_page else ""
+
+st.markdown(f"""
+<style>
+/* ===== MOBILE BOTTOM NAVIGATION BAR ===== */
+@media (max-width: 768px) {{
+    /* Fixed bottom navigation */
+    .mobile-nav-bar {{
+        display: flex !important;
         position: fixed !important;
         bottom: 0 !important;
         left: 0 !important;
         right: 0 !important;
+        height: 70px !important;
         background: linear-gradient(180deg, rgba(10, 15, 30, 0.98) 0%, rgba(5, 10, 20, 0.99) 100%) !important;
         border-top: 2px solid rgba(0, 212, 255, 0.4) !important;
-        padding: 8px 5px !important;
-        padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
-        z-index: 99999 !important;
-        backdrop-filter: blur(25px) !important;
-        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6) !important;
-    }
+        z-index: 999999 !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
+    }}
     
-    .mobile-bottom-nav .stColumns {
-        gap: 0 !important;
-    }
-    
-    .mobile-bottom-nav button {
-        width: 100% !important;
-        background: transparent !important;
-        border: none !important;
-        padding: 8px 4px !important;
-        min-height: 60px !important;
+    .mobile-nav-bar a {{
         display: flex !important;
         flex-direction: column !important;
         align-items: center !important;
         justify-content: center !important;
+        text-decoration: none !important;
         color: #90e0ef !important;
-        font-size: 0.65rem !important;
-        font-family: 'Rajdhani', sans-serif !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.3px !important;
+        padding: 8px 12px !important;
+        border-radius: 12px !important;
         transition: all 0.2s ease !important;
+        min-width: 60px !important;
         -webkit-tap-highlight-color: transparent !important;
-    }
+    }}
     
-    .mobile-bottom-nav button:hover,
-    .mobile-bottom-nav button:focus {
-        background: rgba(0, 212, 255, 0.1) !important;
+    .mobile-nav-bar a:active {{
+        transform: scale(0.9) !important;
+        background: rgba(0, 212, 255, 0.2) !important;
+    }}
+    
+    .mobile-nav-bar a.active {{
         color: #00d4ff !important;
-        border: none !important;
-        box-shadow: none !important;
-    }
+        background: rgba(0, 212, 255, 0.15) !important;
+    }}
     
-    .mobile-bottom-nav button:active {
-        transform: scale(0.95) !important;
-    }
-    
-    .mobile-bottom-nav button p {
-        margin: 0 !important;
-        line-height: 1.2 !important;
-    }
-    
-    /* Active button styling */
-    .mobile-bottom-nav [data-active="true"] button {
-        background: linear-gradient(180deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 180, 216, 0.05) 100%) !important;
-        color: #00d4ff !important;
-    }
-    
-    .mobile-bottom-nav [data-active="true"] button::before {
+    .mobile-nav-bar a.active::after {{
         content: '' !important;
         position: absolute !important;
-        top: 0 !important;
-        left: 25% !important;
-        right: 25% !important;
+        bottom: 5px !important;
+        width: 20px !important;
         height: 3px !important;
         background: linear-gradient(90deg, #00d4ff, #00b4d8) !important;
-        border-radius: 0 0 3px 3px !important;
-    }
-}
+        border-radius: 3px !important;
+    }}
+    
+    .nav-icon {{
+        font-size: 1.5rem !important;
+        margin-bottom: 2px !important;
+    }}
+    
+    .nav-label {{
+        font-size: 0.65rem !important;
+        font-family: 'Rajdhani', sans-serif !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+    }}
+    
+    /* Add padding to main content so it doesn't hide behind nav */
+    .main .block-container {{
+        padding-bottom: 100px !important;
+    }}
+    
+    /* Hide on desktop */
+    .desktop-hide {{
+        display: flex !important;
+    }}
+}}
+
+@media (min-width: 769px) {{
+    .mobile-nav-bar {{
+        display: none !important;
+    }}
+}}
 </style>
+
+<nav class="mobile-nav-bar desktop-hide">
+    <a href="?page=home" class="{get_active_class('home')}" onclick="handleNav(event, 'home')">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Home</span>
+    </a>
+    <a href="?page=calendar" class="{get_active_class('calendar')}" onclick="handleNav(event, 'calendar')">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Calendar</span>
+    </a>
+    <a href="?page=programs" class="{get_active_class('programs')}" onclick="handleNav(event, 'programs')">
+        <span class="nav-icon">💪</span>
+        <span class="nav-label">Programs</span>
+    </a>
+    <a href="?page=library" class="{get_active_class('library')}" onclick="handleNav(event, 'library')">
+        <span class="nav-icon">📚</span>
+        <span class="nav-label">Library</span>
+    </a>
+    <a href="?page=collection" class="{get_active_class('collection')}" onclick="handleNav(event, 'collection')">
+        <span class="nav-icon">🎬</span>
+        <span class="nav-label">Videos</span>
+    </a>
+</nav>
+
+<script>
+function handleNav(event, page) {{
+    // Let the href work naturally - Streamlit will handle the query param
+    // The page will reload with ?page=xxx and Streamlit will update session state
+}}
+</script>
 """, unsafe_allow_html=True)
-
-# Create the mobile navigation buttons at the bottom
-st.markdown('<div class="mobile-bottom-nav">', unsafe_allow_html=True)
-
-nav_cols = st.columns(5)
-nav_items = [
-    ("🏠", "Home", "🏠 Home"),
-    ("📅", "Calendar", "📅 Workout Calendar"),
-    ("💪", "Programs", "💪 Workout Programs"),
-    ("📚", "Library", "📚 Exercise Library"),
-    ("🎬", "Videos", "🎬 My Collection")
-]
-
-for i, (icon, label, page_value) in enumerate(nav_items):
-    with nav_cols[i]:
-        is_active = current_nav_page == page_value
-        # Add data attribute for active styling
-        if is_active:
-            st.markdown(f'<div data-active="true">', unsafe_allow_html=True)
-        if st.button(f"{icon}\n{label}", key=f"mobile_nav_{i}", use_container_width=True):
-            st.session_state.nav_page = page_value
-            st.rerun()
-        if is_active:
-            st.markdown('</div>', unsafe_allow_html=True)
-
-st.markdown('</div>', unsafe_allow_html=True)
 
 # --- MOTIVATIONAL QUOTES ---
 quotes = [
@@ -2128,72 +1965,162 @@ elif page == "📅 Workout Calendar":
     cal = calendar.Calendar(firstweekday=6)  # Sunday start
     month_days = cal.monthdayscalendar(st.session_state.calendar_year, st.session_state.calendar_month)
     
-    # Day headers
-    days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
-    header_cols = st.columns(7)
-    for i, day in enumerate(days):
-        with header_cols[i]:
-            st.markdown(f"""
-            <div style="text-align: center; padding: 10px; color: #00d4ff; font-family: 'Orbitron', sans-serif; font-weight: 600;">
-                {day}
-            </div>
-            """, unsafe_allow_html=True)
-    
     # Calendar days
     today = datetime.now()
     # calendar_data already loaded above
     
+    # Build calendar HTML for better mobile display
+    days = ["S", "M", "T", "W", "T", "F", "S"]
+    
+    calendar_html = """
+    <style>
+        .cal-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin: 10px 0;
+        }
+        .cal-header {
+            text-align: center;
+            padding: 8px 4px;
+            color: #00d4ff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: rgba(0, 119, 182, 0.2);
+            border-radius: 5px;
+        }
+        .cal-day {
+            text-align: center;
+            padding: 8px 4px;
+            min-height: 50px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .cal-day-num {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .cal-day-icon {
+            font-size: 0.8rem;
+            margin-top: 2px;
+        }
+        .cal-day-empty {
+            background: transparent;
+        }
+        .cal-day-normal {
+            background: rgba(0, 119, 182, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            color: #caf0f8;
+        }
+        .cal-day-workout {
+            background: rgba(0, 212, 255, 0.15);
+            border: 2px solid rgba(0, 212, 255, 0.5);
+            color: #90e0ef;
+        }
+        .cal-day-completed {
+            background: linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(0, 255, 136, 0.1));
+            border: 2px solid #ffa500;
+            color: #ffa500;
+        }
+        .cal-day-missed {
+            background: rgba(255, 107, 107, 0.15);
+            border: 2px solid #ff6b6b;
+            color: #ff6b6b;
+        }
+        .cal-day-today {
+            background: rgba(0, 180, 216, 0.3);
+            border: 2px solid #00d4ff;
+            color: #00d4ff;
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+        }
+        @media (max-width: 768px) {
+            .cal-grid {
+                gap: 2px;
+            }
+            .cal-day {
+                padding: 6px 2px;
+                min-height: 45px;
+            }
+            .cal-day-num {
+                font-size: 0.75rem;
+            }
+            .cal-day-icon {
+                font-size: 0.7rem;
+            }
+            .cal-header {
+                padding: 6px 2px;
+                font-size: 0.7rem;
+            }
+        }
+    </style>
+    <div class="cal-grid">
+    """
+    
+    # Add day headers
+    for day in days:
+        calendar_html += f'<div class="cal-header">{day}</div>'
+    
+    # Add calendar days
     for week in month_days:
-        cols = st.columns(7)
-        for i, day in enumerate(week):
-            with cols[i]:
-                if day == 0:
-                    st.markdown("<div style='min-height: 100px;'></div>", unsafe_allow_html=True)
+        for day in week:
+            if day == 0:
+                calendar_html += '<div class="cal-day cal-day-empty"></div>'
+            else:
+                date_str = f"{st.session_state.calendar_year}-{st.session_state.calendar_month:02d}-{day:02d}"
+                date_obj = datetime(st.session_state.calendar_year, st.session_state.calendar_month, day).date()
+                is_today = (day == today.day and 
+                           st.session_state.calendar_month == today.month and 
+                           st.session_state.calendar_year == today.year)
+                has_workouts = date_str in calendar_data and len(calendar_data[date_str]) > 0
+                
+                # Check completion status
+                workouts = calendar_data.get(date_str, [])
+                all_completed = all(w.get('completed', False) for w in workouts) if workouts else False
+                is_past = date_obj < today.date()
+                
+                # Determine CSS class and icon
+                if is_today:
+                    css_class = "cal-day-today"
+                    icon = "⭐" if has_workouts else "📍"
+                elif all_completed and has_workouts:
+                    css_class = "cal-day-completed"
+                    icon = "🔥"
+                elif is_past and has_workouts and not all_completed:
+                    css_class = "cal-day-missed"
+                    icon = "❌"
+                elif has_workouts:
+                    css_class = "cal-day-workout"
+                    icon = "💪"
                 else:
-                    date_str = f"{st.session_state.calendar_year}-{st.session_state.calendar_month:02d}-{day:02d}"
-                    date_obj = datetime(st.session_state.calendar_year, st.session_state.calendar_month, day).date()
-                    is_today = (day == today.day and 
-                               st.session_state.calendar_month == today.month and 
-                               st.session_state.calendar_year == today.year)
-                    has_workouts = date_str in calendar_data and len(calendar_data[date_str]) > 0
-                    workout_count = len(calendar_data.get(date_str, []))
-                    
-                    # Check completion status for streak visualization
-                    workouts = calendar_data.get(date_str, [])
-                    all_completed = all(w.get('completed', False) for w in workouts) if workouts else False
-                    is_past = date_obj < today.date()
-                    
-                    # Determine colors based on completion status
-                    if all_completed and has_workouts:
-                        # Completed - green/gold streak color
-                        border_color = "#ffa500"  # Orange for streak
-                        bg_color = "linear-gradient(135deg, rgba(255, 165, 0, 0.15), rgba(0, 255, 136, 0.1))"
-                        status_icon = "🔥"
-                    elif is_past and has_workouts and not all_completed:
-                        # Missed - red tint
-                        border_color = "#ff6b6b"
-                        bg_color = "rgba(255, 107, 107, 0.1)"
-                        status_icon = "❌"
-                    elif is_today:
-                        border_color = "#00d4ff"
-                        bg_color = "rgba(0, 180, 216, 0.2)"
-                        status_icon = "⭐" if has_workouts else ""
-                    elif has_workouts:
-                        border_color = "rgba(0, 212, 255, 0.5)"
-                        bg_color = "rgba(0, 212, 255, 0.1)"
-                        status_icon = "📅"
-                    else:
-                        border_color = "rgba(0, 212, 255, 0.2)"
-                        bg_color = "rgba(0, 119, 182, 0.1)"
-                        status_icon = ""
-                    
-                    st.markdown(f"""
-                    <div style="background: {bg_color}; border: 2px solid {border_color}; border-radius: 10px; padding: 10px; min-height: 80px; text-align: center; transition: all 0.3s ease;">
-                        <div style="font-family: 'Orbitron', sans-serif; color: {'#00d4ff' if is_today else ('#ffa500' if all_completed and has_workouts else '#caf0f8')}; font-size: 1.2rem; font-weight: {'700' if is_today else '400'};">{day}</div>
-                        <div style="font-size: 1rem; margin-top: 3px;">{status_icon}</div>
-                        <div style="color: {'#ffa500' if all_completed and has_workouts else ('#ff6b6b' if is_past and has_workouts and not all_completed else '#90e0ef')}; font-size: 0.65rem; margin-top: 3px;">{f'{workout_count} ✓' if all_completed and has_workouts else (f'{workout_count} workout{"s" if workout_count != 1 else ""}' if has_workouts else '')}</div>
-                    </div>
-                    """, unsafe_allow_html=True)
+                    css_class = "cal-day-normal"
+                    icon = ""
+                
+                calendar_html += f'''
+                <div class="cal-day {css_class}">
+                    <div class="cal-day-num">{day}</div>
+                    <div class="cal-day-icon">{icon}</div>
+                </div>
+                '''
+    
+    calendar_html += '</div>'
+    st.markdown(calendar_html, unsafe_allow_html=True)
+    
+    # Calendar Legend
+    st.markdown("""
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 15px 0; padding: 10px; background: rgba(0, 30, 60, 0.3); border-radius: 10px;">
+        <span style="color: #90e0ef; font-size: 0.8rem;">📍 Today</span>
+        <span style="color: #90e0ef; font-size: 0.8rem;">💪 Scheduled</span>
+        <span style="color: #ffa500; font-size: 0.8rem;">🔥 Completed</span>
+        <span style="color: #ff6b6b; font-size: 0.8rem;">❌ Missed</span>
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     
@@ -2682,23 +2609,23 @@ elif page == "📚 Exercise Library":
             st.info(f"🫁 {exercise['instructions']['breathing']}")
         
         with tab2:
-            st.markdown("### 🎮 Interactive 3D View")
-            st.markdown("*Rotate, zoom, and explore the exercise from every angle!*")
+            st.markdown("### 🎬 Exercise Demonstration")
+            st.markdown("*Watch the animated GIF to learn proper form!*")
             
-            # Render the 3D model viewer
-            render_3d_model_viewer(
-                animation_name=st.session_state.selected_exercise,
-                exercise_name=exercise['name']
+            # Render the exercise GIF demo
+            render_exercise_demo(
+                exercise_name=exercise['name'],
+                exercise_type=exercise.get('category', 'general')
             )
             
             st.markdown("""
             <div style="background: rgba(0, 119, 182, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 10px; padding: 15px; margin-top: 15px;">
-                <h4 style="color: #00d4ff; margin-top: 0;">🎮 Controls</h4>
+                <h4 style="color: #00d4ff; margin-top: 0;">💡 Tips</h4>
                 <ul style="color: #90e0ef; margin-bottom: 0;">
-                    <li><strong>Rotate:</strong> Click and drag</li>
-                    <li><strong>Zoom:</strong> Scroll or pinch</li>
-                    <li><strong>Pan:</strong> Right-click and drag</li>
-                    <li><strong>AR View:</strong> Available on supported devices</li>
+                    <li><strong>Focus:</strong> Watch the movement pattern carefully</li>
+                    <li><strong>Form:</strong> Match your body position to the demo</li>
+                    <li><strong>Pace:</strong> Start slow, then match the rhythm</li>
+                    <li><strong>Mirror:</strong> Practice in front of a mirror</li>
                 </ul>
             </div>
             """, unsafe_allow_html=True)
