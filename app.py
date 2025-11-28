@@ -1432,7 +1432,8 @@ if not st.session_state.logged_in:
 
 # --- MOBILE BOTTOM NAVIGATION ---
 # Get current page from session state  
-current_nav_page = st.session_state.get('nav_page', '🏠 Home')
+if 'nav_page' not in st.session_state:
+    st.session_state.nav_page = '🏠 Home'
 
 # Navigation mapping
 NAV_PAGES = {
@@ -1442,141 +1443,6 @@ NAV_PAGES = {
     'library': '📚 Exercise Library',
     'collection': '🎬 My Collection'
 }
-
-# Handle navigation from URL params (for mobile nav clicks)
-query_params = st.query_params
-if 'page' in query_params:
-    requested_page = NAV_PAGES.get(query_params['page'])
-    if requested_page and requested_page != current_nav_page:
-        st.session_state.nav_page = requested_page
-        st.query_params.clear()
-        st.rerun()
-
-# Inject mobile bottom navigation bar using HTML/CSS/JS
-# This creates a TRUE fixed bottom bar that doesn't scroll with content
-def get_active_class(nav_key):
-    return "active" if NAV_PAGES.get(nav_key) == current_nav_page else ""
-
-st.markdown(f"""
-<style>
-/* ===== MOBILE BOTTOM NAVIGATION BAR ===== */
-@media (max-width: 768px) {{
-    /* Fixed bottom navigation */
-    .mobile-nav-bar {{
-        display: flex !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 70px !important;
-        background: linear-gradient(180deg, rgba(10, 15, 30, 0.98) 0%, rgba(5, 10, 20, 0.99) 100%) !important;
-        border-top: 2px solid rgba(0, 212, 255, 0.4) !important;
-        z-index: 999999 !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5) !important;
-        padding: 0 !important;
-        margin: 0 !important;
-        justify-content: space-around !important;
-        align-items: center !important;
-        padding-bottom: env(safe-area-inset-bottom) !important;
-    }}
-    
-    .mobile-nav-bar a {{
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        text-decoration: none !important;
-        color: #90e0ef !important;
-        padding: 8px 12px !important;
-        border-radius: 12px !important;
-        transition: all 0.2s ease !important;
-        min-width: 60px !important;
-        -webkit-tap-highlight-color: transparent !important;
-    }}
-    
-    .mobile-nav-bar a:active {{
-        transform: scale(0.9) !important;
-        background: rgba(0, 212, 255, 0.2) !important;
-    }}
-    
-    .mobile-nav-bar a.active {{
-        color: #00d4ff !important;
-        background: rgba(0, 212, 255, 0.15) !important;
-    }}
-    
-    .mobile-nav-bar a.active::after {{
-        content: '' !important;
-        position: absolute !important;
-        bottom: 5px !important;
-        width: 20px !important;
-        height: 3px !important;
-        background: linear-gradient(90deg, #00d4ff, #00b4d8) !important;
-        border-radius: 3px !important;
-    }}
-    
-    .nav-icon {{
-        font-size: 1.5rem !important;
-        margin-bottom: 2px !important;
-    }}
-    
-    .nav-label {{
-        font-size: 0.65rem !important;
-        font-family: 'Rajdhani', sans-serif !important;
-        font-weight: 600 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-    }}
-    
-    /* Add padding to main content so it doesn't hide behind nav */
-    .main .block-container {{
-        padding-bottom: 100px !important;
-    }}
-    
-    /* Hide on desktop */
-    .desktop-hide {{
-        display: flex !important;
-    }}
-}}
-
-@media (min-width: 769px) {{
-    .mobile-nav-bar {{
-        display: none !important;
-    }}
-}}
-</style>
-
-<nav class="mobile-nav-bar desktop-hide">
-    <a href="?page=home" class="{get_active_class('home')}" onclick="handleNav(event, 'home')">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">Home</span>
-    </a>
-    <a href="?page=calendar" class="{get_active_class('calendar')}" onclick="handleNav(event, 'calendar')">
-        <span class="nav-icon">📅</span>
-        <span class="nav-label">Calendar</span>
-    </a>
-    <a href="?page=programs" class="{get_active_class('programs')}" onclick="handleNav(event, 'programs')">
-        <span class="nav-icon">💪</span>
-        <span class="nav-label">Programs</span>
-    </a>
-    <a href="?page=library" class="{get_active_class('library')}" onclick="handleNav(event, 'library')">
-        <span class="nav-icon">📚</span>
-        <span class="nav-label">Library</span>
-    </a>
-    <a href="?page=collection" class="{get_active_class('collection')}" onclick="handleNav(event, 'collection')">
-        <span class="nav-icon">🎬</span>
-        <span class="nav-label">Videos</span>
-    </a>
-</nav>
-
-<script>
-function handleNav(event, page) {{
-    // Let the href work naturally - Streamlit will handle the query param
-    // The page will reload with ?page=xxx and Streamlit will update session state
-}}
-</script>
-""", unsafe_allow_html=True)
 
 # --- MOTIVATIONAL QUOTES ---
 quotes = [
@@ -1624,20 +1490,20 @@ with st.sidebar:
     # Navigation - with session state support for quick action buttons
     st.markdown("## 🧭 Navigation")
     
-    # Initialize nav_page in session state if not exists
-    if 'nav_page' not in st.session_state:
-        st.session_state.nav_page = "🏠 Home"
-    
     nav_options = ["🏠 Home", "📅 Workout Calendar", "💪 Workout Programs", "📚 Exercise Library", "🎬 My Collection"]
     
     # Create a callback function to update session state
     def on_nav_change():
         st.session_state.nav_page = st.session_state.main_nav
     
-    page = st.radio(
+    # Use session state as value
+    if st.session_state.nav_page not in nav_options:
+        st.session_state.nav_page = nav_options[0]
+
+    st.radio(
         "Choose a section:",
         nav_options,
-        index=nav_options.index(st.session_state.nav_page) if st.session_state.nav_page in nav_options else 0,
+        index=nav_options.index(st.session_state.nav_page),
         label_visibility="collapsed",
         key="main_nav",
         on_change=on_nav_change
@@ -2076,8 +1942,8 @@ elif page == "📅 Workout Calendar":
                 date_str = f"{st.session_state.calendar_year}-{st.session_state.calendar_month:02d}-{day:02d}"
                 date_obj = datetime(st.session_state.calendar_year, st.session_state.calendar_month, day).date()
                 is_today = (day == today.day and 
-                           st.session_state.calendar_month == today.month and 
-                           st.session_state.calendar_year == today.year)
+                            st.session_state.calendar_month == today.month and 
+                            st.session_state.calendar_year == today.year)
                 has_workouts = date_str in calendar_data and len(calendar_data[date_str]) > 0
                 
                 # Check completion status
@@ -2835,3 +2701,92 @@ st.markdown("""
     </p>
 </div>
 """, unsafe_allow_html=True)
+
+# --- FIXED MOBILE NAVIGATION (Native Streamlit Buttons) ---
+# CSS pour fixer les boutons en bas sur mobile et gérer l'affichage PC/Mobile
+st.markdown("""
+<style>
+    /* Par défaut (PC), on cache la barre du bas */
+    .mobile-nav-container {
+        display: none;
+    }
+
+    /* SUR MOBILE (Max 768px) */
+    @media (max-width: 768px) {
+        /* Cacher la Sidebar native sur mobile */
+        section[data-testid="stSidebar"] {
+            display: none !important;
+        }
+        
+        /* Afficher la barre du bas */
+        .mobile-nav-container {
+            display: block;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(180deg, rgba(10, 15, 30, 0.98) 0%, #050a14 100%);
+            border-top: 1px solid rgba(0, 212, 255, 0.4);
+            z-index: 99999;
+            padding: 10px 5px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Ajuster les boutons pour qu'ils rentrent bien */
+        .mobile-nav-container .stButton button {
+            width: 100%;
+            padding: 0.5rem 0;
+            font-size: 1.2rem;
+            line-height: 1;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Ajouter de l'espace en bas du contenu principal pour ne pas être caché par la barre */
+        .main .block-container {
+            padding-bottom: 80px !important;
+        }
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# Conteneur de la barre de navigation (affiché uniquement sur mobile via CSS)
+st.markdown('<div class="mobile-nav-container">', unsafe_allow_html=True)
+
+# On utilise des colonnes pour aligner les boutons
+mob_col1, mob_col2, mob_col3, mob_col4, mob_col5 = st.columns(5)
+
+# Fonction pour changer de page sans recharger (garde la session active)
+def change_page(page_name):
+    st.session_state.nav_page = page_name
+    # Pas besoin de rerun explicite ici, le clic sur le bouton le fait automatiquement
+
+# Boutons de navigation
+with mob_col1:
+    if st.button("🏠", key="mob_home", help="Home", use_container_width=True):
+        change_page("🏠 Home")
+        st.rerun()
+
+with mob_col2:
+    if st.button("📅", key="mob_cal", help="Calendar", use_container_width=True):
+        change_page("📅 Workout Calendar")
+        st.rerun()
+
+with mob_col3:
+    if st.button("💪", key="mob_prog", help="Programs", use_container_width=True):
+        change_page("💪 Workout Programs")
+        st.rerun()
+
+with mob_col4:
+    if st.button("📚", key="mob_lib", help="Library", use_container_width=True):
+        change_page("📚 Exercise Library")
+        st.rerun()
+
+with mob_col5:
+    if st.button("🎬", key="mob_col", help="Collection", use_container_width=True):
+        change_page("🎬 My Collection")
+        st.rerun()
+
+st.markdown('</div>', unsafe_allow_html=True)
