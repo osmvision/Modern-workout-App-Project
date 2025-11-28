@@ -556,57 +556,49 @@ st.markdown("""
     }
     
     /* Calendar Styles */
-    .calendar-container {
-        background: linear-gradient(145deg, rgba(13, 27, 42, 0.9), rgba(27, 38, 59, 0.9));
-        border: 1px solid rgba(0, 212, 255, 0.2);
-        border-radius: 20px;
-        padding: 20px;
-        margin: 20px 0;
+    .cal-grid { 
+        display: grid; 
+        grid-template-columns: repeat(7, 1fr); 
+        gap: 5px; 
+        margin: 10px 0; 
     }
-    
-    .calendar-day {
-        background: rgba(0, 119, 182, 0.1);
-        border: 1px solid rgba(0, 212, 255, 0.2);
-        border-radius: 10px;
-        padding: 10px;
-        margin: 5px;
-        min-height: 80px;
-        transition: all 0.3s ease;
-        cursor: pointer;
+    .cal-header { 
+        text-align: center; 
+        padding: 5px; 
+        color: #00d4ff; 
+        font-family: 'Orbitron', sans-serif; 
+        font-size: 0.8rem; 
+        font-weight: bold;
     }
-    
-    .calendar-day:hover {
-        background: rgba(0, 180, 216, 0.2);
-        border-color: rgba(0, 212, 255, 0.5);
-        transform: scale(1.05);
+    .cal-day { 
+        text-align: center; 
+        padding: 5px; 
+        min-height: 60px; 
+        border-radius: 10px; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 0.9rem;
     }
-    
-    .calendar-day.today {
-        background: linear-gradient(135deg, rgba(0, 180, 216, 0.3), rgba(0, 119, 182, 0.3));
-        border-color: #00d4ff;
-        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+    .cal-day-normal { 
+        background: rgba(0, 119, 182, 0.1); 
+        border: 1px solid rgba(0, 212, 255, 0.1); 
+        color: #caf0f8; 
     }
-    
-    .calendar-day.has-workout {
-        border-color: #00d4ff;
-        background: rgba(0, 212, 255, 0.1);
+    .cal-day-today { 
+        background: rgba(0, 180, 216, 0.3); 
+        border: 2px solid #00d4ff; 
+        color: #ffffff; 
+        font-weight: bold; 
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
     }
-    
-    .calendar-day-num {
-        font-family: 'Orbitron', sans-serif;
-        color: #caf0f8;
-        font-size: 1.2rem;
+    .cal-day-workout { 
+        background: rgba(0, 255, 136, 0.1); 
+        border: 1px solid #00ff88; 
+        color: #00ff88; 
     }
-    
-    .calendar-workout-indicator {
-        width: 8px;
-        height: 8px;
-        background: #00d4ff;
-        border-radius: 50%;
-        display: inline-block;
-        margin: 2px;
-        box-shadow: 0 0 5px #00d4ff;
-    }
+    .cal-icon { font-size: 1rem; margin-top: 2px; }
     
     /* Program Cards */
     .program-card {
@@ -1380,6 +1372,102 @@ st.markdown("""
         color: #caf0f8;
         font-size: 0.85rem;
     }
+    /* --- MOBILE NAVIGATION BAR STYLE (Glassmorphism) --- */
+    .mobile-nav-container { display: none; } /* Hidden on PC */
+
+    @media (max-width: 768px) {
+        /* Hide Sidebar */
+        section[data-testid="stSidebar"] { display: none !important; }
+        
+        /* Main Content Spacing */
+        .main .block-container { padding-bottom: 120px !important; }
+        
+        /* Bottom Bar Container */
+        .mobile-nav-container {
+            display: block;
+            position: fixed;
+            bottom: 20px;
+            left: 5%;
+            width: 90%;
+            background: rgba(13, 27, 42, 0.85); /* Dark Blue Transparent */
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
+            z-index: 99999;
+            padding: 10px 5px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Columns inside Nav */
+        .mobile-nav-container [data-testid="column"] {
+            padding: 0 !important;
+            text-align: center !important;
+        }
+
+        /* Nav Buttons */
+        .mobile-nav-container .stButton button {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 5px 0 !important;
+            width: 100% !important;
+            font-size: 1.4rem !important; /* Bigger Icons */
+            line-height: 1 !important;
+            margin: 0 !important;
+            color: #90e0ef !important;
+        }
+        
+        .mobile-nav-container .stButton button:hover {
+            color: #00d4ff !important;
+            transform: scale(1.1);
+        }
+    }
+    
+    /* --- CALENDAR CSS (FIX) --- */
+    .cal-grid { 
+        display: grid; 
+        grid-template-columns: repeat(7, 1fr); 
+        gap: 5px; 
+        margin: 10px 0; 
+    }
+    .cal-header { 
+        text-align: center; 
+        padding: 5px; 
+        color: #00d4ff; 
+        font-family: 'Orbitron'; 
+        font-size: 0.8rem; 
+        font-weight: bold;
+    }
+    .cal-day { 
+        text-align: center; 
+        padding: 5px; 
+        min-height: 60px; 
+        border-radius: 10px; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 0.9rem;
+    }
+    .cal-day-normal { 
+        background: rgba(0, 119, 182, 0.1); 
+        border: 1px solid rgba(0, 212, 255, 0.1); 
+        color: #caf0f8; 
+    }
+    .cal-day-today { 
+        background: rgba(0, 180, 216, 0.3); 
+        border: 2px solid #00d4ff; 
+        color: #ffffff; 
+        font-weight: bold; 
+        box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+    }
+    .cal-day-workout { 
+        background: rgba(0, 255, 136, 0.1); 
+        border: 1px solid #00ff88; 
+        color: #00ff88; 
+    }
+    .cal-icon { font-size: 1rem; margin-top: 2px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -1689,40 +1777,47 @@ if page == "🏠 Home":
     
     # Quick Actions
     st.markdown("## ⚡ Quick Actions")
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         st.markdown("""
         <div class="action-card">
             <div style="font-size: 3rem; margin-bottom: 10px;">📅</div>
-            <h4 style="color: #00d4ff; margin: 10px 0;">Plan Workout</h4>
-            <p style="color: #90e0ef; font-size: 0.9rem;">Schedule your workouts in the calendar</p>
+            <h4 style="color: #00d4ff; margin: 10px 0;">Plan</h4>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("📅 Go to Calendar", key="nav_calendar", use_container_width=True):
+        if st.button("Plan", key="nav_calendar", use_container_width=True):
             navigate_to("📅 Workout Calendar")
         
     with col2:
         st.markdown("""
         <div class="action-card">
             <div style="font-size: 3rem; margin-bottom: 10px;">💪</div>
-            <h4 style="color: #00d4ff; margin: 10px 0;">Browse Programs</h4>
-            <p style="color: #90e0ef; font-size: 0.9rem;">Explore curated workout programs</p>
+            <h4 style="color: #00d4ff; margin: 10px 0;">Progs</h4>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("💪 View Programs", key="nav_programs", use_container_width=True):
+        if st.button("Progs", key="nav_programs", use_container_width=True):
             navigate_to("💪 Workout Programs")
         
     with col3:
         st.markdown("""
         <div class="action-card">
             <div style="font-size: 3rem; margin-bottom: 10px;">🎬</div>
-            <h4 style="color: #00d4ff; margin: 10px 0;">Watch Videos</h4>
-            <p style="color: #90e0ef; font-size: 0.9rem;">Access your saved workout videos</p>
+            <h4 style="color: #00d4ff; margin: 10px 0;">Vids</h4>
         </div>
         """, unsafe_allow_html=True)
-        if st.button("🎬 My Collection", key="nav_collection", use_container_width=True):
+        if st.button("Vids", key="nav_collection", use_container_width=True):
             navigate_to("🎬 My Collection")
+
+    with col4:
+        st.markdown("""
+        <div class="action-card">
+            <div style="font-size: 3rem; margin-bottom: 10px;">📚</div>
+            <h4 style="color: #00d4ff; margin: 10px 0;">Lib</h4>
+        </div>
+        """, unsafe_allow_html=True)
+        if st.button("Lib", key="nav_library", use_container_width=True):
+            navigate_to("📚 Exercise Library")
     
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     
@@ -1860,93 +1955,6 @@ elif page == "📅 Workout Calendar":
     days = ["S", "M", "T", "W", "T", "F", "S"]
     
     calendar_html = """
-    <style>
-        .cal-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-            margin: 10px 0;
-        }
-        .cal-header {
-            text-align: center;
-            padding: 8px 4px;
-            color: #00d4ff;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 600;
-            font-size: 0.8rem;
-            background: rgba(0, 119, 182, 0.2);
-            border-radius: 5px;
-        }
-        .cal-day {
-            text-align: center;
-            padding: 8px 4px;
-            min-height: 50px;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .cal-day-num {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        .cal-day-icon {
-            font-size: 0.8rem;
-            margin-top: 2px;
-        }
-        .cal-day-empty {
-            background: transparent;
-        }
-        .cal-day-normal {
-            background: rgba(0, 119, 182, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            color: #caf0f8;
-        }
-        .cal-day-workout {
-            background: rgba(0, 212, 255, 0.15);
-            border: 2px solid rgba(0, 212, 255, 0.5);
-            color: #90e0ef;
-        }
-        .cal-day-completed {
-            background: linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(0, 255, 136, 0.1));
-            border: 2px solid #ffa500;
-            color: #ffa500;
-        }
-        .cal-day-missed {
-            background: rgba(255, 107, 107, 0.15);
-            border: 2px solid #ff6b6b;
-            color: #ff6b6b;
-        }
-        .cal-day-today {
-            background: rgba(0, 180, 216, 0.3);
-            border: 2px solid #00d4ff;
-            color: #00d4ff;
-            font-weight: 700;
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
-        }
-        @media (max-width: 768px) {
-            .cal-grid {
-                gap: 2px;
-            }
-            .cal-day {
-                padding: 6px 2px;
-                min-height: 45px;
-            }
-            .cal-day-num {
-                font-size: 0.75rem;
-            }
-            .cal-day-icon {
-                font-size: 0.7rem;
-            }
-            .cal-header {
-                padding: 6px 2px;
-                font-size: 0.7rem;
-            }
-        }
-    </style>
     <div class="cal-grid">
     """
     
@@ -2723,7 +2731,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- FIXED MOBILE NAVIGATION (Native Streamlit Buttons) ---
+# --- FIXED MOBILE NAVIGATION (Native Streamlit Buttons with Styling) ---
 # CSS pour fixer les boutons en bas sur mobile et gérer l'affichage PC/Mobile
 st.markdown("""
 <style>
@@ -2743,15 +2751,17 @@ st.markdown("""
         .mobile-nav-container {
             display: block;
             position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(180deg, rgba(10, 15, 30, 0.98) 0%, #050a14 100%);
-            border-top: 1px solid rgba(0, 212, 255, 0.4);
+            bottom: 20px;
+            left: 5%;
+            width: 90%;
+            background: rgba(13, 27, 42, 0.85); /* Verre fumé sombre */
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
             z-index: 99999;
             padding: 10px 5px;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
         
         /* Force les colonnes à s'afficher horizontalement */
@@ -2766,22 +2776,31 @@ st.markdown("""
         .mobile-nav-container [data-testid="column"] {
             flex: 1 !important;
             min-width: 0 !important;
+            padding: 0 !important;
+            text-align: center !important;
         }
         
         /* Ajuster les boutons pour qu'ils rentrent bien */
         .mobile-nav-container .stButton button {
             width: 100%;
-            padding: 0.5rem 0;
-            font-size: 1.2rem;
+            padding: 5px 0 !important;
+            font-size: 1.4rem; /* Taille des émojis augmentée */
             line-height: 1;
             background: transparent !important;
             border: none !important;
             box-shadow: none !important;
+            margin: 0 !important;
+            color: #90e0ef !important;
+        }
+
+        .mobile-nav-container .stButton button:hover {
+            color: #00d4ff !important;
+            transform: scale(1.1);
         }
         
         /* Ajouter de l'espace en bas du contenu principal pour ne pas être caché par la barre */
         .main .block-container {
-            padding-bottom: 80px !important;
+            padding-bottom: 120px !important;
         }
     }
 </style>
