@@ -1556,10 +1556,7 @@ def show_login_page():
                 st.balloons()
                 st.rerun()
             else:
-                st.error("❌ Incorrect PIN. Try: 1234")
-        
-        st.markdown("---")
-        st.markdown("<p style='text-align: center; color: #90e0ef; font-size: 0.8rem;'>Hint: Default PIN is 1234</p>", unsafe_allow_html=True)
+                st.error("❌ Incorrect PIN")
 
 # Check if user is logged in
 if 'logged_in' not in st.session_state:
@@ -2182,15 +2179,17 @@ elif page == "💪 Workout Programs":
     else:
         selected = programs[st.session_state.selected_program]
         
-        # Back button at top
-        if st.button("⬅️ Back to All Programs", use_container_width=False):
-            st.session_state.selected_program = None
-            st.rerun()
+        # Back button at top - more prominent
+        col_back, col_title = st.columns([1, 4])
+        with col_back:
+            if st.button("⬅️ Back", key="back_programs", use_container_width=True, type="secondary"):
+                st.session_state.selected_program = None
+                st.rerun()
+        with col_title:
+            st.markdown(f"## 📋 {selected['name']}")
         
-        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-        
-        st.markdown(f"## 📋 {selected['name']}")
         st.markdown(f"*{selected['description']}*")
+        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
         
         # ===== VISUAL PROGRAM OVERVIEW =====
         col1, col2 = st.columns(2)
@@ -2482,10 +2481,14 @@ elif page == "📚 Exercise Library":
         # Display selected exercise details
         exercise = EXERCISE_LIBRARY[st.session_state.selected_exercise]
         
-        # Back button
-        if st.button("⬅️ Back to Exercise List"):
-            st.session_state.selected_exercise = None
-            st.rerun()
+        # Back button - more prominent
+        col_back, col_title = st.columns([1, 4])
+        with col_back:
+            if st.button("⬅️ Back", key="back_exercises", use_container_width=True, type="secondary"):
+                st.session_state.selected_exercise = None
+                st.rerun()
+        with col_title:
+            st.markdown(f"## {exercise['name']}")
         
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
         
@@ -2493,7 +2496,6 @@ elif page == "📚 Exercise Library":
         col1, col2 = st.columns([2, 1])
         
         with col1:
-            st.markdown(f"## {exercise['name']}")
             st.markdown(f"""
             <div class="program-meta">
                 <span class="program-tag">{exercise['category']}</span>
@@ -2587,45 +2589,6 @@ elif page == "📚 Exercise Library":
             else:
                 st.info("Video coming soon!")
     
-    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
-    
-    # Mixamo Resources Section
-    with st.expander("🎮 3D Animation Resources (Mixamo)", expanded=False):
-        st.markdown(f"""
-        ### About Mixamo
-        {MIXAMO_RESOURCES['about']}
-        
-        **🔗 Website:** [{MIXAMO_RESOURCES['website']}]({MIXAMO_RESOURCES['website']})
-        
-        ### Features
-        """)
-        
-        for feature in MIXAMO_RESOURCES['features']:
-            st.markdown(f"✅ {feature}")
-        
-        st.markdown("### Recommended Characters for Fitness Apps")
-        
-        char_cols = st.columns(4)
-        for i, char in enumerate(MIXAMO_RESOURCES['recommended_characters']):
-            with char_cols[i]:
-                st.markdown(f"""
-                <div class="mini-stat">
-                    <div class="mini-stat-icon">🤖</div>
-                    <div class="mini-stat-value" style="font-size: 0.9rem;">{char['name']}</div>
-                    <div class="mini-stat-label">{char['description']}</div>
-                </div>
-                """, unsafe_allow_html=True)
-        
-        st.markdown("### How to Use Mixamo")
-        for step in MIXAMO_RESOURCES['how_to_use']:
-            st.markdown(f"**{step}**")
-        
-        st.markdown("### Available Fitness Animations")
-        anim_cols = st.columns(5)
-        for i, anim in enumerate(MIXAMO_RESOURCES['fitness_animations']):
-            with anim_cols[i % 5]:
-                st.markdown(f"🎬 {anim}")
-
 # ===== MY COLLECTION PAGE =====
 elif page == "🎬 My Collection":
     st.markdown('<h1 class="main-header">🎬 MY COLLECTION</h1>', unsafe_allow_html=True)
