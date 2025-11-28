@@ -2746,77 +2746,83 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- FLOATING GLASSMORPHISM NAVIGATION BAR ---
+# --- MOBILE NAVIGATION (Native Streamlit Buttons) ---
 st.markdown("""
 <style>
-    /* Target the specific nav buttons by their keys */
-    div[data-testid="stHorizontalBlock"]:has(button[kind="secondary"]):last-of-type {
-        position: fixed !important;
-        bottom: 20px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: 90% !important;
-        max-width: 450px !important;
-        background: rgba(13, 27, 42, 0.92) !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        border: 1px solid rgba(0, 212, 255, 0.3) !important;
-        border-radius: 30px !important;
-        z-index: 999999 !important;
-        padding: 8px 12px !important;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 212, 255, 0.15) !important;
-        display: flex !important;
-        justify-content: space-around !important;
-        align-items: center !important;
-        gap: 5px !important;
+    /* Hide nav on PC */
+    .mobile-nav-container {
+        display: none;
     }
-    
-    /* Style for nav button columns */
-    div[data-testid="stHorizontalBlock"]:has(button[kind="secondary"]):last-of-type [data-testid="column"] {
-        flex: 1 !important;
-        padding: 0 !important;
-    }
-    
-    /* Override button styles for nav - using multiple selectors for specificity */
-    div[data-testid="stHorizontalBlock"]:last-of-type .stButton > button,
-    div[data-testid="stHorizontalBlock"]:last-of-type .stButton button,
-    [data-testid="stHorizontalBlock"]:last-of-type button[kind="secondary"] {
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 12px 8px !important;
-        font-size: 1.4rem !important;
-        color: #90e0ef !important;
-        border-radius: 15px !important;
-        transition: all 0.3s ease !important;
-        width: 100% !important;
-        min-height: auto !important;
-        line-height: 1 !important;
-    }
-    
-    div[data-testid="stHorizontalBlock"]:last-of-type .stButton > button:hover,
-    div[data-testid="stHorizontalBlock"]:last-of-type .stButton button:hover {
-        background: rgba(0, 212, 255, 0.2) !important;
-        color: #00d4ff !important;
-        transform: scale(1.15) !important;
-        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3) !important;
-    }
-    
-    /* Add padding to main content to avoid overlap */
-    .main .block-container {
-        padding-bottom: 100px !important;
-    }
-    
-    /* MOBILE: Hide Sidebar */
+
+    /* MOBILE STYLES */
     @media (max-width: 768px) {
+        /* Hide Sidebar on mobile */
         section[data-testid="stSidebar"] {
             display: none !important;
+        }
+        
+        /* Show bottom nav bar */
+        .mobile-nav-container {
+            display: block;
+            position: fixed;
+            bottom: 20px;
+            left: 5%;
+            width: 90%;
+            background: rgba(13, 27, 42, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
+            z-index: 99999;
+            padding: 10px 5px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Horizontal layout */
+        .mobile-nav-container [data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: space-around !important;
+            align-items: center !important;
+            gap: 5px !important;
+        }
+        
+        .mobile-nav-container [data-testid="column"] {
+            flex: 1 !important;
+            min-width: 0 !important;
+            padding: 0 !important;
+            text-align: center !important;
+        }
+        
+        /* Nav Buttons */
+        .mobile-nav-container .stButton button {
+            width: 100%;
+            padding: 5px 0 !important;
+            font-size: 1.4rem;
+            line-height: 1;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            margin: 0 !important;
+            color: #90e0ef !important;
+        }
+
+        .mobile-nav-container .stButton button:hover {
+            color: #00d4ff !important;
+            transform: scale(1.1);
+        }
+        
+        /* Add padding to main content */
+        .main .block-container {
+            padding-bottom: 120px !important;
         }
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Navigation bar at bottom - using columns
+# Navigation container (only shown on mobile via CSS)
+st.markdown('<div class="mobile-nav-container">', unsafe_allow_html=True)
+
 mob_col1, mob_col2, mob_col3, mob_col4, mob_col5 = st.columns(5)
 
 with mob_col1:
@@ -2838,3 +2844,5 @@ with mob_col4:
 with mob_col5:
     if st.button("🎬", key="mob_col", help="Collection", use_container_width=True):
         navigate_to("🎬 My Collection")
+
+st.markdown('</div>', unsafe_allow_html=True)
