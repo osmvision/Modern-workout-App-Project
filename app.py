@@ -2746,103 +2746,161 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- MOBILE NAVIGATION (Native Streamlit Buttons) ---
+# --- CYBERPUNK FLOATING NAVIGATION BAR ---
 st.markdown("""
 <style>
-    /* Hide nav on PC */
-    .mobile-nav-container {
-        display: none;
+    /* ===== CYBERPUNK GLASSMORPHISM NAV BAR ===== */
+    
+    /* Hide the Streamlit buttons container completely */
+    .mobile-nav-streamlit {
+        display: none !important;
     }
-
-    /* MOBILE STYLES */
+    
+    /* The floating glass pill */
+    .cyber-nav {
+        position: fixed !important;
+        bottom: 25px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 85% !important;
+        max-width: 380px !important;
+        height: 65px !important;
+        background: rgba(10, 15, 30, 0.75) !important;
+        backdrop-filter: blur(20px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+        border: 1px solid rgba(0, 212, 255, 0.25) !important;
+        border-radius: 35px !important;
+        z-index: 999999 !important;
+        display: flex !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+        padding: 0 20px !important;
+        box-shadow: 
+            0 10px 40px rgba(0, 0, 0, 0.5),
+            0 0 30px rgba(0, 212, 255, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    }
+    
+    /* Neon glow line on top */
+    .cyber-nav::before {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #00d4ff, transparent);
+        border-radius: 2px;
+    }
+    
+    /* Nav icons */
+    .cyber-nav-item {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        padding: 10px 12px !important;
+        border-radius: 20px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        text-decoration: none !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+    
+    .cyber-nav-item:hover {
+        background: rgba(0, 212, 255, 0.15) !important;
+    }
+    
+    .cyber-nav-item:active {
+        transform: scale(0.9) !important;
+    }
+    
+    .cyber-nav-icon {
+        font-size: 1.5rem !important;
+        filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.5)) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .cyber-nav-item:hover .cyber-nav-icon {
+        filter: drop-shadow(0 0 15px rgba(0, 212, 255, 0.9)) !important;
+        transform: translateY(-3px) scale(1.1) !important;
+    }
+    
+    /* Add bottom padding to content */
+    .main .block-container {
+        padding-bottom: 120px !important;
+    }
+    
+    /* Hide sidebar on mobile */
     @media (max-width: 768px) {
-        /* Hide Sidebar on mobile */
         section[data-testid="stSidebar"] {
             display: none !important;
         }
-        
-        /* Show bottom nav bar */
-        .mobile-nav-container {
-            display: block;
-            position: fixed;
-            bottom: 20px;
-            left: 5%;
-            width: 90%;
-            background: rgba(13, 27, 42, 0.85);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 25px;
-            z-index: 99999;
-            padding: 10px 5px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-        
-        /* Horizontal layout */
-        .mobile-nav-container [data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            justify-content: space-around !important;
-            align-items: center !important;
-            gap: 5px !important;
-        }
-        
-        .mobile-nav-container [data-testid="column"] {
-            flex: 1 !important;
-            min-width: 0 !important;
-            padding: 0 !important;
-            text-align: center !important;
-        }
-        
-        /* Nav Buttons */
-        .mobile-nav-container .stButton button {
-            width: 100%;
-            padding: 5px 0 !important;
-            font-size: 1.4rem;
-            line-height: 1;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-            color: #90e0ef !important;
-        }
-
-        .mobile-nav-container .stButton button:hover {
-            color: #00d4ff !important;
-            transform: scale(1.1);
-        }
-        
-        /* Add padding to main content */
-        .main .block-container {
-            padding-bottom: 120px !important;
-        }
     }
 </style>
+
+<nav class="cyber-nav">
+    <a class="cyber-nav-item" onclick="navigateTo('home')">
+        <span class="cyber-nav-icon">🏠</span>
+    </a>
+    <a class="cyber-nav-item" onclick="navigateTo('calendar')">
+        <span class="cyber-nav-icon">📅</span>
+    </a>
+    <a class="cyber-nav-item" onclick="navigateTo('programs')">
+        <span class="cyber-nav-icon">💪</span>
+    </a>
+    <a class="cyber-nav-item" onclick="navigateTo('library')">
+        <span class="cyber-nav-icon">📚</span>
+    </a>
+    <a class="cyber-nav-item" onclick="navigateTo('collection')">
+        <span class="cyber-nav-icon">🎬</span>
+    </a>
+</nav>
+
+<script>
+function navigateTo(page) {
+    const pages = {
+        'home': '🏠 Home',
+        'calendar': '📅 Workout Calendar', 
+        'programs': '💪 Workout Programs',
+        'library': '📚 Exercise Library',
+        'collection': '🎬 My Collection'
+    };
+    
+    // Find and click the corresponding hidden Streamlit button
+    const buttons = document.querySelectorAll('.mobile-nav-streamlit button');
+    const pageNames = ['home', 'calendar', 'programs', 'library', 'collection'];
+    const index = pageNames.indexOf(page);
+    if (buttons[index]) {
+        buttons[index].click();
+    }
+}
+</script>
 """, unsafe_allow_html=True)
 
-# Navigation container (only shown on mobile via CSS)
-st.markdown('<div class="mobile-nav-container">', unsafe_allow_html=True)
-
+# Hidden Streamlit buttons for actual navigation
+st.markdown('<div class="mobile-nav-streamlit">', unsafe_allow_html=True)
 mob_col1, mob_col2, mob_col3, mob_col4, mob_col5 = st.columns(5)
 
 with mob_col1:
-    if st.button("🏠", key="mob_home", help="Home", use_container_width=True):
+    if st.button("🏠", key="mob_home", use_container_width=True):
         navigate_to("🏠 Home")
 
 with mob_col2:
-    if st.button("📅", key="mob_cal", help="Calendar", use_container_width=True):
+    if st.button("📅", key="mob_cal", use_container_width=True):
         navigate_to("📅 Workout Calendar")
 
 with mob_col3:
-    if st.button("💪", key="mob_prog", help="Programs", use_container_width=True):
+    if st.button("💪", key="mob_prog", use_container_width=True):
         navigate_to("💪 Workout Programs")
 
 with mob_col4:
-    if st.button("📚", key="mob_lib", help="Library", use_container_width=True):
+    if st.button("📚", key="mob_lib", use_container_width=True):
         navigate_to("📚 Exercise Library")
 
 with mob_col5:
-    if st.button("🎬", key="mob_col", help="Collection", use_container_width=True):
+    if st.button("🎬", key="mob_col", use_container_width=True):
         navigate_to("🎬 My Collection")
 
 st.markdown('</div>', unsafe_allow_html=True)
