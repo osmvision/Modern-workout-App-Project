@@ -2746,68 +2746,65 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- STYLISH MOBILE NAVIGATION (Native Streamlit Buttons) ---
+# --- FLOATING GLASSMORPHISM NAVIGATION BAR ---
 st.markdown("""
 <style>
-    /* Floating Glassmorphism Bottom Bar - ALWAYS VISIBLE */
-    .mobile-nav-container {
-        display: block !important;
+    /* Target the specific nav buttons by their keys */
+    div[data-testid="stHorizontalBlock"]:has(button[kind="secondary"]):last-of-type {
         position: fixed !important;
         bottom: 20px !important;
         left: 50% !important;
         transform: translateX(-50%) !important;
         width: 90% !important;
-        max-width: 500px !important;
-        background: rgba(13, 27, 42, 0.9) !important;
+        max-width: 450px !important;
+        background: rgba(13, 27, 42, 0.92) !important;
         backdrop-filter: blur(20px) !important;
         -webkit-backdrop-filter: blur(20px) !important;
         border: 1px solid rgba(0, 212, 255, 0.3) !important;
         border-radius: 30px !important;
         z-index: 999999 !important;
-        padding: 12px 15px !important;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 212, 255, 0.1) !important;
-    }
-    
-    /* Horizontal layout */
-    .mobile-nav-container [data-testid="stHorizontalBlock"] {
+        padding: 8px 12px !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), 0 0 30px rgba(0, 212, 255, 0.15) !important;
         display: flex !important;
-        flex-direction: row !important;
         justify-content: space-around !important;
         align-items: center !important;
-        gap: 8px !important;
+        gap: 5px !important;
     }
     
-    .mobile-nav-container [data-testid="column"] {
+    /* Style for nav button columns */
+    div[data-testid="stHorizontalBlock"]:has(button[kind="secondary"]):last-of-type [data-testid="column"] {
         flex: 1 !important;
-        min-width: 0 !important;
         padding: 0 !important;
-        text-align: center !important;
     }
     
-    /* Nav Buttons - Clean transparent style */
-    .mobile-nav-container .stButton button {
-        width: 100% !important;
-        padding: 10px 5px !important;
-        font-size: 1.5rem !important;
-        line-height: 1 !important;
+    /* Override button styles for nav - using multiple selectors for specificity */
+    div[data-testid="stHorizontalBlock"]:last-of-type .stButton > button,
+    div[data-testid="stHorizontalBlock"]:last-of-type .stButton button,
+    [data-testid="stHorizontalBlock"]:last-of-type button[kind="secondary"] {
         background: transparent !important;
         border: none !important;
         box-shadow: none !important;
-        margin: 0 !important;
+        padding: 12px 8px !important;
+        font-size: 1.4rem !important;
         color: #90e0ef !important;
         border-radius: 15px !important;
         transition: all 0.3s ease !important;
-    }
-
-    .mobile-nav-container .stButton button:hover {
-        color: #00d4ff !important;
-        background: rgba(0, 212, 255, 0.15) !important;
-        transform: scale(1.1) !important;
+        width: 100% !important;
+        min-height: auto !important;
+        line-height: 1 !important;
     }
     
-    /* Add padding to main content */
+    div[data-testid="stHorizontalBlock"]:last-of-type .stButton > button:hover,
+    div[data-testid="stHorizontalBlock"]:last-of-type .stButton button:hover {
+        background: rgba(0, 212, 255, 0.2) !important;
+        color: #00d4ff !important;
+        transform: scale(1.15) !important;
+        box-shadow: 0 0 15px rgba(0, 212, 255, 0.3) !important;
+    }
+    
+    /* Add padding to main content to avoid overlap */
     .main .block-container {
-        padding-bottom: 120px !important;
+        padding-bottom: 100px !important;
     }
     
     /* MOBILE: Hide Sidebar */
@@ -2819,13 +2816,9 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Conteneur de la barre de navigation (affiché uniquement sur mobile via CSS)
-st.markdown('<div class="mobile-nav-container">', unsafe_allow_html=True)
-
-# On utilise des colonnes pour aligner les boutons
+# Navigation bar at bottom - using columns
 mob_col1, mob_col2, mob_col3, mob_col4, mob_col5 = st.columns(5)
 
-# Boutons de navigation
 with mob_col1:
     if st.button("🏠", key="mob_home", help="Home", use_container_width=True):
         navigate_to("🏠 Home")
@@ -2845,5 +2838,3 @@ with mob_col4:
 with mob_col5:
     if st.button("🎬", key="mob_col", help="Collection", use_container_width=True):
         navigate_to("🎬 My Collection")
-
-st.markdown('</div>', unsafe_allow_html=True)
