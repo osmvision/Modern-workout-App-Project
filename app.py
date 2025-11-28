@@ -20,8 +20,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- BACK BUTTON STATE MANAGEMENT ---
-# Initialize page history in session state if it doesn't exist
 # --- NAVIGATION WITH QUERY PARAMS (for native back gesture support) ---
 PAGE_MAPPING = {
     'home': '🏠 Home',
@@ -34,9 +32,12 @@ PAGE_MAPPING = {
 PAGE_REVERSE_MAPPING = {v: k for k, v in PAGE_MAPPING.items()}
 
 def get_current_page_from_url():
-    """Read page from URL query params"""
+    """Read page from URL query params - home is default"""
     params = st.query_params
     page_key = params.get('page', 'home')
+    # If no page param, set it to home for consistent URLs
+    if 'page' not in params:
+        st.query_params['page'] = 'home'
     return PAGE_MAPPING.get(page_key, '🏠 Home')
 
 def navigate_to(page_name):
@@ -47,8 +48,8 @@ def navigate_to(page_name):
 
 def go_back():
     """Go back to home page"""
-    navigate_to('🏠 Home')
-    pass
+    st.query_params['page'] = 'home'
+    st.rerun()
 
 # --- EXERCISE GIF VIEWER COMPONENT ---
 def render_exercise_demo(exercise_name="Exercise", exercise_type="general"):
