@@ -1039,13 +1039,23 @@ with st.sidebar:
     
     st.markdown("---")
     
-    # Navigation
+    # Navigation - with session state support for quick action buttons
     st.markdown("## 🧭 Navigation")
+    
+    # Initialize nav_page in session state if not exists
+    if 'nav_page' not in st.session_state:
+        st.session_state.nav_page = "🏠 Home"
+    
     page = st.radio(
         "Choose a section:",
         ["🏠 Home", "📅 Workout Calendar", "💪 Workout Programs", "🎬 My Collection"],
-        label_visibility="collapsed"
+        index=["🏠 Home", "📅 Workout Calendar", "💪 Workout Programs", "🎬 My Collection"].index(st.session_state.nav_page),
+        label_visibility="collapsed",
+        key="main_nav"
     )
+    
+    # Update session state when radio changes
+    st.session_state.nav_page = page
     
     st.markdown("---")
     
@@ -1132,6 +1142,9 @@ if page == "🏠 Home":
             <p style="color: #90e0ef; font-size: 0.9rem;">Schedule your workouts in the calendar</p>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("📅 Go to Calendar", key="nav_calendar", use_container_width=True):
+            st.session_state.nav_page = "📅 Workout Calendar"
+            st.rerun()
         
     with col2:
         st.markdown("""
@@ -1141,6 +1154,9 @@ if page == "🏠 Home":
             <p style="color: #90e0ef; font-size: 0.9rem;">Explore curated workout programs</p>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("💪 View Programs", key="nav_programs", use_container_width=True):
+            st.session_state.nav_page = "💪 Workout Programs"
+            st.rerun()
         
     with col3:
         st.markdown("""
@@ -1150,6 +1166,9 @@ if page == "🏠 Home":
             <p style="color: #90e0ef; font-size: 0.9rem;">Access your saved workout videos</p>
         </div>
         """, unsafe_allow_html=True)
+        if st.button("🎬 My Collection", key="nav_collection", use_container_width=True):
+            st.session_state.nav_page = "🎬 My Collection"
+            st.rerun()
     
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     
@@ -1459,23 +1478,15 @@ elif page == "💪 Workout Programs":
         
         muscles = muscle_targets.get(st.session_state.selected_program, {'Full Body': 80})
         
-        muscle_bars_html = ""
+        # Display muscle chart using Streamlit progress bars
         for muscle, percent in sorted(muscles.items(), key=lambda x: x[1], reverse=True):
-            muscle_bars_html += f"""
-            <div class="muscle-bar-container">
-                <span class="muscle-label">{muscle}</span>
-                <div class="muscle-bar-bg">
-                    <div class="muscle-bar-fill" style="width: {percent}%;"></div>
-                </div>
-                <span class="muscle-percent">{percent}%</span>
-            </div>
-            """
-        
-        st.markdown(f"""
-        <div class="muscle-chart">
-            {muscle_bars_html}
-        </div>
-        """, unsafe_allow_html=True)
+            col1, col2, col3 = st.columns([1, 4, 1])
+            with col1:
+                st.markdown(f"<span style='color: #90e0ef; font-family: Rajdhani, sans-serif; font-size: 0.95rem;'>{muscle}</span>", unsafe_allow_html=True)
+            with col2:
+                st.progress(percent / 100)
+            with col3:
+                st.markdown(f"<span style='color: #00d4ff; font-family: Orbitron, sans-serif; font-size: 0.9rem;'>{percent}%</span>", unsafe_allow_html=True)
         
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
         
@@ -1492,23 +1503,29 @@ elif page == "💪 Workout Programs":
         
         intensity = intensity_levels.get(st.session_state.selected_program, 3)
         intensity_labels = {1: 'Light', 2: 'Easy', 3: 'Moderate', 4: 'Intense', 5: 'Extreme'}
+        intensity_colors = {1: '🟢', 2: '🟢', 3: '🟡', 4: '🟠', 5: '🔴'}
         
-        intensity_bars = ""
-        for i in range(5):
-            filled_class = "filled" if i < intensity else ""
-            high_class = "high" if i >= 3 and i < intensity else ""
-            intensity_bars += f'<div class="intensity-bar {filled_class} {high_class}"></div>'
-        
-        st.markdown(f"""
-        <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: rgba(0, 119, 182, 0.05); border-radius: 15px;">
-            <div class="intensity-meter">
-                {intensity_bars}
+        # Display intensity using columns with emojis
+        int_col1, int_col2 = st.columns([2, 3])
+        with int_col1:
+            intensity_display = ""
+            for i in range(5):
+                if i < intensity:
+                    intensity_display += "🔥"
+                else:
+                    intensity_display += "⬜"
+            st.markdown(f"<div style='font-size: 1.8rem; letter-spacing: 5px;'>{intensity_display}</div>", unsafe_allow_html=True)
+        with int_col2:
+            st.markdown(f"""
+            <div style="padding: 15px; background: rgba(0, 119, 182, 0.1); border-radius: 15px; border-left: 4px solid #00d4ff;">
+                <span style="font-family: 'Orbitron', sans-serif; color: #00d4ff; font-size: 1.3rem;">
+                    {intensity_colors[intensity]} {intensity_labels[intensity]}
+                </span>
+                <p style="color: #90e0ef; font-size: 0.85rem; margin-top: 5px;">
+                    {['', 'Perfect for recovery days', 'Great for beginners', 'Balanced workout', 'Push your limits!', 'Maximum effort required!'][intensity]}
+                </p>
             </div>
-            <span style="font-family: 'Orbitron', sans-serif; color: #00d4ff; font-size: 1.1rem;">
-                {intensity_labels[intensity]}
-            </span>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
         
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
         
