@@ -1373,57 +1373,7 @@ st.markdown("""
         color: #caf0f8;
         font-size: 0.85rem;
     }
-    /* --- MOBILE NAVIGATION BAR STYLE (Glassmorphism) --- */
-    .mobile-nav-container { display: none; } /* Hidden on PC */
-
-    @media (max-width: 768px) {
-        /* Hide Sidebar */
-        section[data-testid="stSidebar"] { display: none !important; }
-        
-        /* Main Content Spacing */
-        .main .block-container { padding-bottom: 120px !important; }
-        
-        /* Bottom Bar Container */
-        .mobile-nav-container {
-            display: block;
-            position: fixed;
-            bottom: 20px;
-            left: 5%;
-            width: 90%;
-            background: rgba(13, 27, 42, 0.85); /* Dark Blue Transparent */
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 25px;
-            z-index: 99999;
-            padding: 10px 5px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Columns inside Nav */
-        .mobile-nav-container [data-testid="column"] {
-            padding: 0 !important;
-            text-align: center !important;
-        }
-
-        /* Nav Buttons */
-        .mobile-nav-container .stButton button {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            padding: 5px 0 !important;
-            width: 100% !important;
-            font-size: 1.4rem !important; /* Bigger Icons */
-            line-height: 1 !important;
-            margin: 0 !important;
-            color: #90e0ef !important;
-        }
-        
-        .mobile-nav-container .stButton button:hover {
-            color: #00d4ff !important;
-            transform: scale(1.1);
-        }
-    }
+    /* Mobile nav styles are at bottom of file */
     
     /* --- CALENDAR CSS (FIX) --- */
     .cal-grid { 
@@ -1538,181 +1488,7 @@ if not st.session_state.logged_in:
     show_login_page()
     st.stop()
 
-# --- MOBILE BOTTOM NAVIGATION ---
-# Get current page from session state  
-if 'nav_page' not in st.session_state:
-    st.session_state.nav_page = '🏠 Home'
-
-current_nav_page = st.session_state.nav_page
-
-# Navigation mapping
-NAV_PAGES = {
-    'home': '🏠 Home',
-    'calendar': '📅 Workout Calendar',
-    'programs': '💪 Workout Programs', 
-    'library': '📚 Exercise Library',
-    'collection': '🎬 My Collection'
-}
-
-# Handle navigation from URL params
-query_params = st.query_params
-if 'page' in query_params:
-    requested_page = NAV_PAGES.get(query_params['page'])
-    if requested_page and requested_page != current_nav_page:
-        st.session_state.nav_page = requested_page
-        st.query_params.clear()
-        st.rerun()
-
-# Helper function to get active class
-def get_active_class(nav_key):
-    return "active" if NAV_PAGES.get(nav_key) == current_nav_page else ""
-
-# Inject stylish mobile bottom navigation bar
-st.markdown(f"""
-<style>
-/* ===== STYLISH MOBILE BOTTOM NAVIGATION ===== */
-.mobile-nav-bar {{
-    display: none;
-}}
-
-@media (max-width: 768px) {{
-    .mobile-nav-bar {{
-        display: flex !important;
-        position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 75px !important;
-        background: linear-gradient(180deg, rgba(10, 15, 35, 0.98) 0%, rgba(5, 10, 25, 1) 100%) !important;
-        border-top: 1px solid rgba(0, 212, 255, 0.3) !important;
-        z-index: 999999 !important;
-        backdrop-filter: blur(20px) !important;
-        -webkit-backdrop-filter: blur(20px) !important;
-        box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5), 0 -2px 15px rgba(0, 212, 255, 0.1) !important;
-        padding: 0 5px !important;
-        padding-bottom: env(safe-area-inset-bottom) !important;
-        justify-content: space-around !important;
-        align-items: center !important;
-    }}
-    
-    .nav-item {{
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        justify-content: center !important;
-        text-decoration: none !important;
-        padding: 8px 10px !important;
-        border-radius: 16px !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        min-width: 60px !important;
-        position: relative !important;
-        -webkit-tap-highlight-color: transparent !important;
-    }}
-    
-    .nav-item::before {{
-        content: '' !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 50% !important;
-        transform: translateX(-50%) scaleX(0) !important;
-        width: 30px !important;
-        height: 3px !important;
-        background: linear-gradient(90deg, #00d4ff, #00ff88) !important;
-        border-radius: 0 0 3px 3px !important;
-        transition: transform 0.3s ease !important;
-    }}
-    
-    .nav-item.active::before {{
-        transform: translateX(-50%) scaleX(1) !important;
-    }}
-    
-    .nav-item:active {{
-        transform: scale(0.92) !important;
-    }}
-    
-    .nav-item.active {{
-        background: linear-gradient(180deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 255, 136, 0.1) 100%) !important;
-    }}
-    
-    .nav-icon {{
-        font-size: 1.5rem !important;
-        margin-bottom: 3px !important;
-        transition: all 0.3s ease !important;
-        filter: grayscale(40%) !important;
-    }}
-    
-    .nav-item.active .nav-icon {{
-        filter: grayscale(0%) drop-shadow(0 0 8px rgba(0, 212, 255, 0.6)) !important;
-        transform: scale(1.15) translateY(-2px) !important;
-    }}
-    
-    .nav-label {{
-        font-size: 0.6rem !important;
-        font-family: 'Rajdhani', sans-serif !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        color: #90e0ef !important;
-        transition: all 0.3s ease !important;
-        opacity: 0.7 !important;
-    }}
-    
-    .nav-item.active .nav-label {{
-        color: #00d4ff !important;
-        opacity: 1 !important;
-        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5) !important;
-    }}
-    
-    /* Glowing dot indicator */
-    .nav-item.active::after {{
-        content: '' !important;
-        position: absolute !important;
-        bottom: 5px !important;
-        left: 50% !important;
-        transform: translateX(-50%) !important;
-        width: 6px !important;
-        height: 6px !important;
-        background: linear-gradient(135deg, #00d4ff, #00ff88) !important;
-        border-radius: 50% !important;
-        box-shadow: 0 0 10px #00d4ff, 0 0 20px rgba(0, 212, 255, 0.5) !important;
-        animation: pulse-glow 2s ease-in-out infinite !important;
-    }}
-    
-    @keyframes pulse-glow {{
-        0%, 100% {{ opacity: 1; transform: translateX(-50%) scale(1); }}
-        50% {{ opacity: 0.7; transform: translateX(-50%) scale(1.2); }}
-    }}
-    
-    /* Add padding to main content */
-    .main .block-container {{
-        padding-bottom: 100px !important;
-    }}
-}}
-</style>
-
-<nav class="mobile-nav-bar">
-    <a href="?page=home" class="nav-item {get_active_class('home')}">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">Home</span>
-    </a>
-    <a href="?page=calendar" class="nav-item {get_active_class('calendar')}">
-        <span class="nav-icon">📅</span>
-        <span class="nav-label">Calendar</span>
-    </a>
-    <a href="?page=programs" class="nav-item {get_active_class('programs')}">
-        <span class="nav-icon">💪</span>
-        <span class="nav-label">Programs</span>
-    </a>
-    <a href="?page=library" class="nav-item {get_active_class('library')}">
-        <span class="nav-icon">📚</span>
-        <span class="nav-label">Library</span>
-    </a>
-    <a href="?page=collection" class="nav-item {get_active_class('collection')}">
-        <span class="nav-icon">🎬</span>
-        <span class="nav-label">Videos</span>
-    </a>
-</nav>
-""", unsafe_allow_html=True)
+# Navigation is handled by sidebar and bottom nav at end of file
 
 # --- MOTIVATIONAL QUOTES ---
 quotes = [
@@ -2966,46 +2742,47 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# --- FIXED MOBILE NAVIGATION (Native Streamlit Buttons with Styling) ---
-# CSS pour fixer les boutons en bas sur mobile et gérer l'affichage PC/Mobile
+# --- STYLISH MOBILE NAVIGATION (Native Streamlit Buttons) ---
 st.markdown("""
 <style>
-    /* Par défaut (PC), on cache la barre du bas */
+    /* Hide on PC */
     .mobile-nav-container {
         display: none;
     }
 
-    /* SUR MOBILE (Max 768px) */
+    /* MOBILE STYLES */
     @media (max-width: 768px) {
-        /* Cacher la Sidebar native sur mobile */
+        /* Hide Sidebar on mobile */
         section[data-testid="stSidebar"] {
             display: none !important;
         }
         
-        /* Afficher la barre du bas */
+        /* Stylish Bottom Navigation Bar */
         .mobile-nav-container {
-            display: block;
-            position: fixed;
-            bottom: 20px;
-            left: 5%;
-            width: 90%;
-            background: rgba(13, 27, 42, 0.85); /* Verre fumé sombre */
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(0, 212, 255, 0.2);
-            border-radius: 25px;
-            z-index: 99999;
-            padding: 10px 5px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            display: block !important;
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            height: 80px !important;
+            background: linear-gradient(180deg, rgba(10, 15, 35, 0.98) 0%, rgba(5, 10, 25, 1) 100%) !important;
+            border-top: 2px solid rgba(0, 212, 255, 0.4) !important;
+            z-index: 999999 !important;
+            backdrop-filter: blur(25px) !important;
+            -webkit-backdrop-filter: blur(25px) !important;
+            box-shadow: 0 -5px 40px rgba(0, 0, 0, 0.6), 0 -2px 20px rgba(0, 212, 255, 0.15) !important;
+            padding: 8px 10px !important;
+            padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
         }
         
-        /* Force les colonnes à s'afficher horizontalement */
+        /* Horizontal layout */
         .mobile-nav-container [data-testid="stHorizontalBlock"] {
             display: flex !important;
             flex-direction: row !important;
             justify-content: space-around !important;
             align-items: center !important;
             gap: 5px !important;
+            height: 100% !important;
         }
         
         .mobile-nav-container [data-testid="column"] {
@@ -3015,27 +2792,39 @@ st.markdown("""
             text-align: center !important;
         }
         
-        /* Ajuster les boutons pour qu'ils rentrent bien */
+        /* Stylish Nav Buttons */
         .mobile-nav-container .stButton button {
-            width: 100%;
-            padding: 5px 0 !important;
-            font-size: 1.4rem; /* Taille des émojis augmentée */
-            line-height: 1;
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
+            width: 100% !important;
+            height: 60px !important;
+            padding: 8px 5px !important;
+            font-size: 1.6rem !important;
+            line-height: 1 !important;
+            background: linear-gradient(180deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 255, 136, 0.05) 100%) !important;
+            border: 1px solid rgba(0, 212, 255, 0.2) !important;
+            border-radius: 16px !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
             margin: 0 !important;
             color: #90e0ef !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            -webkit-tap-highlight-color: transparent !important;
         }
 
-        .mobile-nav-container .stButton button:hover {
+        .mobile-nav-container .stButton button:hover,
+        .mobile-nav-container .stButton button:active {
+            background: linear-gradient(180deg, rgba(0, 212, 255, 0.3) 0%, rgba(0, 255, 136, 0.15) 100%) !important;
+            border-color: rgba(0, 212, 255, 0.5) !important;
             color: #00d4ff !important;
-            transform: scale(1.1);
+            transform: scale(1.05) translateY(-2px) !important;
+            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3), 0 0 20px rgba(0, 212, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
         }
         
-        /* Ajouter de l'espace en bas du contenu principal pour ne pas être caché par la barre */
+        .mobile-nav-container .stButton button:active {
+            transform: scale(0.95) !important;
+        }
+        
+        /* Add padding to main content */
         .main .block-container {
-            padding-bottom: 120px !important;
+            padding-bottom: 100px !important;
         }
     }
 </style>
