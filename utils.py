@@ -231,6 +231,20 @@ def seed_starter_videos():
 # CALENDAR FUNCTIONS (with Supabase support)
 # ============================================
 
+def clear_calendar():
+    """Clear all workouts from the calendar"""
+    if SUPABASE_ENABLED:
+        try:
+            # Delete all records from calendar table
+            supabase.table(CALENDAR_TABLE).delete().neq('id', 0).execute()
+            return True
+        except Exception as e:
+            print(f"Supabase error clearing calendar: {e}")
+            return False
+    else:
+        save_calendar({})
+        return True
+
 def init_calendar():
     """Initialize the calendar"""
     if SUPABASE_ENABLED:
@@ -241,8 +255,9 @@ def init_calendar():
     return load_calendar()
 
 def populate_sample_workouts():
-    """Add sample workouts to the calendar for demonstration"""
+    """Create a comprehensive ONE-YEAR workout calendar with progressive training"""
     from datetime import datetime, timedelta
+    import random
     
     calendar = load_calendar()
     
@@ -252,57 +267,269 @@ def populate_sample_workouts():
     
     today = datetime.now().date()
     
-    # Sample workout templates
-    workout_templates = [
-        {"name": "Morning HIIT", "type": "HIIT", "duration": "30 min", "notes": "High intensity intervals"},
-        {"name": "Lower Body Strength", "type": "Lower Body", "duration": "45 min", "notes": "Focus on glutes and legs"},
-        {"name": "Upper Body Tone", "type": "Upper Body", "duration": "40 min", "notes": "Arms, shoulders, back"},
-        {"name": "Core & Abs", "type": "Core", "duration": "25 min", "notes": "Ab workout"},
-        {"name": "Yoga Flow", "type": "Yoga", "duration": "45 min", "notes": "Flexibility and relaxation"},
-        {"name": "Full Body Burn", "type": "Full Body", "duration": "50 min", "notes": "Complete workout"},
-        {"name": "Cardio Dance", "type": "Cardio", "duration": "35 min", "notes": "Fun cardio session"},
-        {"name": "Pilates", "type": "Pilates", "duration": "40 min", "notes": "Core stability"},
-        {"name": "Stretch & Recovery", "type": "Stretching", "duration": "20 min", "notes": "Active recovery"},
-        {"name": "Glute Builder", "type": "Lower Body", "duration": "35 min", "notes": "Booty focused"},
+    # ===== COMPREHENSIVE WORKOUT LIBRARY =====
+    
+    # Lower Body Workouts (Progressive)
+    lower_body_beginner = [
+        {"name": "Bodyweight Squats & Lunges", "type": "Lower Body", "duration": "25 min", "notes": "3x12 squats, 3x10 lunges each leg"},
+        {"name": "Glute Bridges & Kickbacks", "type": "Lower Body", "duration": "20 min", "notes": "3x15 bridges, 3x12 kickbacks"},
+        {"name": "Wall Sits & Calf Raises", "type": "Lower Body", "duration": "20 min", "notes": "3x30sec wall sit, 3x20 calf raises"},
     ]
     
-    # Add workouts for the next 14 days
-    for i in range(14):
-        workout_date = today + timedelta(days=i)
-        date_str = workout_date.strftime("%Y-%m-%d")
+    lower_body_intermediate = [
+        {"name": "Sumo Squats & Romanian Deadlifts", "type": "Lower Body", "duration": "35 min", "notes": "4x12 sumo squats, 4x10 RDL with weights"},
+        {"name": "Bulgarian Split Squats", "type": "Lower Body", "duration": "30 min", "notes": "4x10 each leg, add weights"},
+        {"name": "Hip Thrusts & Step Ups", "type": "Lower Body", "duration": "35 min", "notes": "4x15 hip thrusts, 3x12 step ups"},
+        {"name": "Goblet Squats & Leg Press", "type": "Lower Body", "duration": "40 min", "notes": "4x12 goblet, 4x15 leg press"},
+    ]
+    
+    lower_body_advanced = [
+        {"name": "Barbell Squats & Deadlifts", "type": "Lower Body", "duration": "50 min", "notes": "5x5 squats, 5x5 deadlifts - heavy"},
+        {"name": "Power Leg Day", "type": "Lower Body", "duration": "55 min", "notes": "Jump squats, box jumps, weighted lunges"},
+        {"name": "Glute Destroyer", "type": "Lower Body", "duration": "45 min", "notes": "Heavy hip thrusts, sumo deads, cable kickbacks"},
+        {"name": "Quad & Ham Focus", "type": "Lower Body", "duration": "50 min", "notes": "Front squats, leg curls, leg extensions"},
+    ]
+    
+    # Upper Body Workouts (Progressive)
+    upper_body_beginner = [
+        {"name": "Push-ups & Arm Circles", "type": "Upper Body", "duration": "20 min", "notes": "Modified push-ups 3x8, arm mobility"},
+        {"name": "Tricep Dips & Wall Push-ups", "type": "Upper Body", "duration": "20 min", "notes": "Chair dips 3x10, wall push 3x12"},
+        {"name": "Resistance Band Arms", "type": "Upper Body", "duration": "25 min", "notes": "Band curls, band rows, band presses"},
+    ]
+    
+    upper_body_intermediate = [
+        {"name": "Dumbbell Chest & Back", "type": "Upper Body", "duration": "35 min", "notes": "DB press 4x10, rows 4x12, flyes 3x12"},
+        {"name": "Shoulder Sculpt", "type": "Upper Body", "duration": "30 min", "notes": "OHP 4x10, lateral raises 4x12, rear delts"},
+        {"name": "Biceps & Triceps Tone", "type": "Upper Body", "duration": "30 min", "notes": "Curls 4x12, tricep extensions 4x12"},
+        {"name": "Push-Pull Combo", "type": "Upper Body", "duration": "40 min", "notes": "Push-ups, rows, shoulder press circuit"},
+    ]
+    
+    upper_body_advanced = [
+        {"name": "Heavy Push Day", "type": "Upper Body", "duration": "50 min", "notes": "Bench 5x5, incline DB, dips, tricep work"},
+        {"name": "Heavy Pull Day", "type": "Upper Body", "duration": "50 min", "notes": "Pull-ups, barbell rows, face pulls, curls"},
+        {"name": "Shoulder Power", "type": "Upper Body", "duration": "45 min", "notes": "Military press 5x5, Arnold press, raises"},
+        {"name": "Arm Blast", "type": "Upper Body", "duration": "40 min", "notes": "Supersets: curls + triceps, 21s, drop sets"},
+    ]
+    
+    # Core Workouts (Progressive)
+    core_beginner = [
+        {"name": "Basic Core Work", "type": "Core", "duration": "15 min", "notes": "Crunches, dead bugs, bird dogs"},
+        {"name": "Plank Challenge", "type": "Core", "duration": "15 min", "notes": "Plank holds, side planks, knee tucks"},
+    ]
+    
+    core_intermediate = [
+        {"name": "Ab Burner", "type": "Core", "duration": "20 min", "notes": "Bicycle crunches, leg raises, Russian twists"},
+        {"name": "Core Stability", "type": "Core", "duration": "25 min", "notes": "Plank variations, hollow holds, mountain climbers"},
+        {"name": "Pilates Core", "type": "Core", "duration": "30 min", "notes": "Hundred, scissors, roll-ups, teaser"},
+    ]
+    
+    core_advanced = [
+        {"name": "Intense Ab Circuit", "type": "Core", "duration": "25 min", "notes": "Hanging leg raises, ab wheel, weighted crunches"},
+        {"name": "Functional Core", "type": "Core", "duration": "30 min", "notes": "Turkish get-ups, windmills, loaded carries"},
+    ]
+    
+    # HIIT Workouts (Progressive)
+    hiit_beginner = [
+        {"name": "Beginner HIIT", "type": "HIIT", "duration": "20 min", "notes": "30s work/30s rest - squats, jacks, marching"},
+        {"name": "Low Impact HIIT", "type": "HIIT", "duration": "25 min", "notes": "Step touches, modified burpees, knee lifts"},
+    ]
+    
+    hiit_intermediate = [
+        {"name": "Tabata Burn", "type": "HIIT", "duration": "30 min", "notes": "20s on/10s off x 8 rounds, multiple exercises"},
+        {"name": "EMOM Challenge", "type": "HIIT", "duration": "30 min", "notes": "Every minute: 10 burpees, 15 squats"},
+        {"name": "Cardio HIIT", "type": "HIIT", "duration": "35 min", "notes": "High knees, burpees, jump lunges, mountain climbers"},
+    ]
+    
+    hiit_advanced = [
+        {"name": "Extreme HIIT", "type": "HIIT", "duration": "40 min", "notes": "45s work/15s rest - plyometrics, burpees, sprints"},
+        {"name": "MetCon Madness", "type": "HIIT", "duration": "45 min", "notes": "Metabolic conditioning: AMRAPs and EMOMs"},
+        {"name": "Warrior HIIT", "type": "HIIT", "duration": "40 min", "notes": "Battle ropes, box jumps, kettlebell swings"},
+    ]
+    
+    # Full Body Workouts (Progressive)
+    full_body_beginner = [
+        {"name": "Full Body Basics", "type": "Full Body", "duration": "30 min", "notes": "Squats, push-ups, lunges, planks"},
+        {"name": "Total Body Tone", "type": "Full Body", "duration": "30 min", "notes": "Light weights, 3 rounds full body circuit"},
+    ]
+    
+    full_body_intermediate = [
+        {"name": "Full Body Strength", "type": "Full Body", "duration": "45 min", "notes": "Compound movements: squat, press, row, lunge"},
+        {"name": "Circuit Training", "type": "Full Body", "duration": "40 min", "notes": "5 exercises, 4 rounds, 45s each"},
+        {"name": "Dumbbell Full Body", "type": "Full Body", "duration": "45 min", "notes": "Complete workout with dumbbells only"},
+    ]
+    
+    full_body_advanced = [
+        {"name": "Power Full Body", "type": "Full Body", "duration": "55 min", "notes": "Olympic lifts, compound movements, plyometrics"},
+        {"name": "Athlete Training", "type": "Full Body", "duration": "60 min", "notes": "Sport-specific movements, agility, power"},
+        {"name": "CrossFit Style WOD", "type": "Full Body", "duration": "50 min", "notes": "AMRAP: thrusters, pull-ups, box jumps, row"},
+    ]
+    
+    # Cardio Workouts
+    cardio_workouts = [
+        {"name": "Dance Cardio Party", "type": "Cardio", "duration": "30 min", "notes": "Fun dance moves, choreo combos"},
+        {"name": "Walking Workout", "type": "Cardio", "duration": "40 min", "notes": "Power walking with intervals"},
+        {"name": "Stair Master", "type": "Cardio", "duration": "30 min", "notes": "Stair climbing intervals"},
+        {"name": "Jump Rope Session", "type": "Cardio", "duration": "25 min", "notes": "Intervals: singles, high knees, criss-cross"},
+        {"name": "Cycling Sprint", "type": "Cardio", "duration": "35 min", "notes": "Indoor cycling with sprint intervals"},
+        {"name": "Rowing Endurance", "type": "Cardio", "duration": "30 min", "notes": "500m intervals, technique focus"},
+    ]
+    
+    # Yoga & Flexibility
+    yoga_workouts = [
+        {"name": "Morning Sun Salutations", "type": "Yoga", "duration": "20 min", "notes": "5-10 sun salutation flows"},
+        {"name": "Vinyasa Flow", "type": "Yoga", "duration": "45 min", "notes": "Dynamic flow with breath"},
+        {"name": "Power Yoga", "type": "Yoga", "duration": "50 min", "notes": "Strength-building yoga poses"},
+        {"name": "Yin Yoga", "type": "Yoga", "duration": "45 min", "notes": "Deep stretches, 3-5 min holds"},
+        {"name": "Hip Opening Yoga", "type": "Yoga", "duration": "35 min", "notes": "Focus on hip flexibility"},
+        {"name": "Yoga for Athletes", "type": "Yoga", "duration": "40 min", "notes": "Recovery-focused stretches"},
+    ]
+    
+    # Pilates
+    pilates_workouts = [
+        {"name": "Mat Pilates Basics", "type": "Pilates", "duration": "30 min", "notes": "Classic mat exercises"},
+        {"name": "Pilates Abs Focus", "type": "Pilates", "duration": "25 min", "notes": "Core-intensive Pilates"},
+        {"name": "Pilates Sculpt", "type": "Pilates", "duration": "40 min", "notes": "Full body Pilates with weights"},
+        {"name": "Barre Pilates", "type": "Pilates", "duration": "45 min", "notes": "Ballet-inspired movements"},
+    ]
+    
+    # Recovery & Stretching
+    recovery_workouts = [
+        {"name": "Active Recovery", "type": "Stretching", "duration": "20 min", "notes": "Light movement, foam rolling"},
+        {"name": "Deep Stretch", "type": "Stretching", "duration": "30 min", "notes": "Full body stretch sequence"},
+        {"name": "Foam Rolling", "type": "Stretching", "duration": "20 min", "notes": "Self-myofascial release"},
+        {"name": "Mobility Flow", "type": "Stretching", "duration": "25 min", "notes": "Joint mobility exercises"},
+    ]
+    
+    # ===== GENERATE ONE YEAR OF WORKOUTS =====
+    
+    def get_phase(week_num):
+        """Determine training phase based on week number"""
+        if week_num <= 4:
+            return "foundation"  # Weeks 1-4: Build habits
+        elif week_num <= 12:
+            return "beginner"    # Weeks 5-12: Beginner progression
+        elif week_num <= 26:
+            return "intermediate" # Weeks 13-26: Intermediate
+        elif week_num <= 40:
+            return "advanced"    # Weeks 27-40: Advanced
+        else:
+            return "peak"        # Weeks 41-52: Peak performance
+    
+    def get_workout_for_day(day_of_week, week_num, day_count):
+        """Get appropriate workout based on day, week, and training phase"""
+        phase = get_phase(week_num)
         
-        # Skip some days for rest (Sundays)
-        if workout_date.weekday() == 6:  # Sunday
-            continue
+        # Sunday is REST day
+        if day_of_week == 6:
+            return None
         
-        # Pick workouts based on day of week
-        day_of_week = workout_date.weekday()
+        # Workout split based on day of week
+        # Monday: Lower Body
+        # Tuesday: HIIT/Cardio
+        # Wednesday: Upper Body
+        # Thursday: Yoga/Pilates (Active Recovery)
+        # Friday: Full Body
+        # Saturday: Cardio/Fun workout
+        
+        random.seed(day_count)  # Consistent randomization
         
         if day_of_week == 0:  # Monday - Lower Body
-            workout = workout_templates[1].copy()
+            if phase == "foundation":
+                return random.choice(lower_body_beginner)
+            elif phase == "beginner":
+                return random.choice(lower_body_beginner + lower_body_intermediate[:1])
+            elif phase == "intermediate":
+                return random.choice(lower_body_intermediate)
+            else:
+                return random.choice(lower_body_intermediate + lower_body_advanced)
+        
         elif day_of_week == 1:  # Tuesday - HIIT
-            workout = workout_templates[0].copy()
+            if phase == "foundation":
+                return random.choice(hiit_beginner)
+            elif phase == "beginner":
+                return random.choice(hiit_beginner + hiit_intermediate[:1])
+            elif phase == "intermediate":
+                return random.choice(hiit_intermediate)
+            else:
+                return random.choice(hiit_intermediate + hiit_advanced)
+        
         elif day_of_week == 2:  # Wednesday - Upper Body
-            workout = workout_templates[2].copy()
-        elif day_of_week == 3:  # Thursday - Yoga
-            workout = workout_templates[4].copy()
+            if phase == "foundation":
+                return random.choice(upper_body_beginner)
+            elif phase == "beginner":
+                return random.choice(upper_body_beginner + upper_body_intermediate[:1])
+            elif phase == "intermediate":
+                return random.choice(upper_body_intermediate)
+            else:
+                return random.choice(upper_body_intermediate + upper_body_advanced)
+        
+        elif day_of_week == 3:  # Thursday - Yoga/Recovery
+            if week_num % 4 == 0:  # Every 4th week: recovery focus
+                return random.choice(recovery_workouts)
+            elif week_num % 2 == 0:
+                return random.choice(yoga_workouts)
+            else:
+                return random.choice(pilates_workouts)
+        
         elif day_of_week == 4:  # Friday - Full Body
-            workout = workout_templates[5].copy()
-        elif day_of_week == 5:  # Saturday - Cardio
-            workout = workout_templates[6].copy()
-        else:
-            workout = workout_templates[3].copy()
+            if phase == "foundation":
+                return random.choice(full_body_beginner)
+            elif phase == "beginner":
+                return random.choice(full_body_beginner + full_body_intermediate[:1])
+            elif phase == "intermediate":
+                return random.choice(full_body_intermediate)
+            else:
+                return random.choice(full_body_intermediate + full_body_advanced)
         
-        workout['completed'] = False
+        elif day_of_week == 5:  # Saturday - Cardio/Fun
+            if week_num % 3 == 0:  # Every 3rd week: just stretching/recovery
+                return random.choice(recovery_workouts)
+            else:
+                return random.choice(cardio_workouts)
         
-        # Mark past workouts as completed
-        if workout_date < today:
-            workout['completed'] = True
+        # Add occasional core work as secondary workout (1 in 3 non-rest days)
+        return None
+    
+    # Generate 365 days of workouts
+    start_date = today
+    day_count = 0
+    
+    for i in range(365):
+        workout_date = start_date + timedelta(days=i)
+        date_str = workout_date.strftime("%Y-%m-%d")
+        day_of_week = workout_date.weekday()
+        week_num = i // 7 + 1
         
-        add_workout_to_calendar(date_str, workout)
+        # Get main workout for the day
+        workout = get_workout_for_day(day_of_week, week_num, day_count)
+        
+        if workout:
+            workout_copy = workout.copy()
+            workout_copy['completed'] = False
+            
+            # Mark past workouts as completed (for demo)
+            if workout_date < today:
+                workout_copy['completed'] = True
+            
+            add_workout_to_calendar(date_str, workout_copy)
+            
+            # Add core workout on Monday/Friday (intermediate+)
+            phase = get_phase(week_num)
+            if phase in ["intermediate", "advanced", "peak"] and day_of_week in [0, 4]:
+                if week_num % 2 == 0:  # Every other week
+                    if phase == "intermediate":
+                        core = random.choice(core_beginner + core_intermediate)
+                    else:
+                        core = random.choice(core_intermediate + core_advanced)
+                    core_copy = core.copy()
+                    core_copy['completed'] = False
+                    if workout_date < today:
+                        core_copy['completed'] = True
+                    add_workout_to_calendar(date_str, core_copy)
+        
+        day_count += 1
     
     return True
-    return load_calendar()
 
 def load_calendar():
     """Load calendar data"""

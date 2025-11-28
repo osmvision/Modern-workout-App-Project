@@ -1625,64 +1625,121 @@ if not st.session_state.logged_in:
     st.stop()
 
 # --- MOBILE BOTTOM NAVIGATION ---
-# This creates a fixed bottom navigation bar for mobile devices
-def get_nav_active_class(nav_item, current_page):
-    """Return 'active' class if this is the current page"""
-    page_map = {
-        'home': '🏠 Home',
-        'calendar': '📅 Workout Calendar',
-        'programs': '💪 Workout Programs',
-        'library': '📚 Exercise Library',
-        'collection': '🎬 My Collection'
-    }
-    return 'active' if page_map.get(nav_item) == current_page else ''
+# Using Streamlit buttons styled as a bottom navigation bar
+# This preserves session state (no page reload issues)
 
-# Get current page from session state
+# Get current page from session state  
 current_nav_page = st.session_state.get('nav_page', '🏠 Home')
 
-# Render mobile navigation HTML - Horizontal Bottom Bar
-st.markdown(f"""
-<nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Main navigation">
-    <div class="mobile-nav-container">
-        <a class="mobile-nav-item {'active' if current_nav_page == '🏠 Home' else ''}" href="?nav=home" aria-label="Home" aria-current="{'page' if current_nav_page == '🏠 Home' else 'false'}">
-            <span class="mobile-nav-icon">🏠</span>
-            <span class="mobile-nav-label">Home</span>
-        </a>
-        <a class="mobile-nav-item {'active' if current_nav_page == '📅 Workout Calendar' else ''}" href="?nav=calendar" aria-label="Calendar" aria-current="{'page' if current_nav_page == '📅 Workout Calendar' else 'false'}">
-            <span class="mobile-nav-icon">📅</span>
-            <span class="mobile-nav-label">Calendar</span>
-        </a>
-        <a class="mobile-nav-item {'active' if current_nav_page == '💪 Workout Programs' else ''}" href="?nav=programs" aria-label="Programs" aria-current="{'page' if current_nav_page == '💪 Workout Programs' else 'false'}">
-            <span class="mobile-nav-icon">💪</span>
-            <span class="mobile-nav-label">Programs</span>
-        </a>
-        <a class="mobile-nav-item {'active' if current_nav_page == '📚 Exercise Library' else ''}" href="?nav=library" aria-label="Exercise Library" aria-current="{'page' if current_nav_page == '📚 Exercise Library' else 'false'}">
-            <span class="mobile-nav-icon">📚</span>
-            <span class="mobile-nav-label">Library</span>
-        </a>
-        <a class="mobile-nav-item {'active' if current_nav_page == '🎬 My Collection' else ''}" href="?nav=collection" aria-label="My Collection" aria-current="{'page' if current_nav_page == '🎬 My Collection' else 'false'}">
-            <span class="mobile-nav-icon">🎬</span>
-            <span class="mobile-nav-label">Videos</span>
-        </a>
-    </div>
-</nav>
+# Create mobile bottom nav container with Streamlit buttons
+st.markdown("""
+<style>
+/* Mobile bottom navigation using Streamlit buttons */
+.mobile-bottom-nav {
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .mobile-bottom-nav {
+        display: block !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: linear-gradient(180deg, rgba(10, 15, 30, 0.98) 0%, rgba(5, 10, 20, 0.99) 100%) !important;
+        border-top: 2px solid rgba(0, 212, 255, 0.4) !important;
+        padding: 8px 5px !important;
+        padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
+        z-index: 99999 !important;
+        backdrop-filter: blur(25px) !important;
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6) !important;
+    }
+    
+    .mobile-bottom-nav .stColumns {
+        gap: 0 !important;
+    }
+    
+    .mobile-bottom-nav button {
+        width: 100% !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 8px 4px !important;
+        min-height: 60px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: #90e0ef !important;
+        font-size: 0.65rem !important;
+        font-family: 'Rajdhani', sans-serif !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.3px !important;
+        transition: all 0.2s ease !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }
+    
+    .mobile-bottom-nav button:hover,
+    .mobile-bottom-nav button:focus {
+        background: rgba(0, 212, 255, 0.1) !important;
+        color: #00d4ff !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    
+    .mobile-bottom-nav button:active {
+        transform: scale(0.95) !important;
+    }
+    
+    .mobile-bottom-nav button p {
+        margin: 0 !important;
+        line-height: 1.2 !important;
+    }
+    
+    /* Active button styling */
+    .mobile-bottom-nav [data-active="true"] button {
+        background: linear-gradient(180deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 180, 216, 0.05) 100%) !important;
+        color: #00d4ff !important;
+    }
+    
+    .mobile-bottom-nav [data-active="true"] button::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 25% !important;
+        right: 25% !important;
+        height: 3px !important;
+        background: linear-gradient(90deg, #00d4ff, #00b4d8) !important;
+        border-radius: 0 0 3px 3px !important;
+    }
+}
+</style>
 """, unsafe_allow_html=True)
 
-# Handle URL query parameters for mobile navigation
-query_params = st.query_params
-if 'nav' in query_params:
-    nav_map = {
-        'home': '🏠 Home',
-        'calendar': '📅 Workout Calendar', 
-        'programs': '💪 Workout Programs',
-        'library': '📚 Exercise Library',
-        'collection': '🎬 My Collection'
-    }
-    requested_page = nav_map.get(query_params['nav'])
-    if requested_page and requested_page != st.session_state.get('nav_page'):
-        st.session_state.nav_page = requested_page
-        st.query_params.clear()
-        st.rerun()
+# Create the mobile navigation buttons at the bottom
+st.markdown('<div class="mobile-bottom-nav">', unsafe_allow_html=True)
+
+nav_cols = st.columns(5)
+nav_items = [
+    ("🏠", "Home", "🏠 Home"),
+    ("📅", "Calendar", "📅 Workout Calendar"),
+    ("💪", "Programs", "💪 Workout Programs"),
+    ("📚", "Library", "📚 Exercise Library"),
+    ("🎬", "Videos", "🎬 My Collection")
+]
+
+for i, (icon, label, page_value) in enumerate(nav_items):
+    with nav_cols[i]:
+        is_active = current_nav_page == page_value
+        # Add data attribute for active styling
+        if is_active:
+            st.markdown(f'<div data-active="true">', unsafe_allow_html=True)
+        if st.button(f"{icon}\n{label}", key=f"mobile_nav_{i}", use_container_width=True):
+            st.session_state.nav_page = page_value
+            st.rerun()
+        if is_active:
+            st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # --- MOTIVATIONAL QUOTES ---
 quotes = [
@@ -1982,7 +2039,7 @@ if page == "🏠 Home":
 # ===== CALENDAR PAGE =====
 elif page == "📅 Workout Calendar":
     st.markdown('<h1 class="main-header">📅 WORKOUT CALENDAR</h1>', unsafe_allow_html=True)
-    st.markdown('<p class="sub-header">PLAN YOUR FITNESS JOURNEY</p>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-header">YOUR ONE-YEAR FITNESS JOURNEY</p>', unsafe_allow_html=True)
     
     # 🔥 STREAK DISPLAY AT TOP OF CALENDAR
     streak_data = utils.get_streak_data()
@@ -2003,6 +2060,35 @@ elif page == "📅 Workout Calendar":
     
     # Initialize calendar
     utils.init_calendar()
+    
+    # One Year Program Info & Reset Button
+    calendar_data = utils.load_calendar()
+    workout_days = len([d for d in calendar_data if calendar_data[d]])
+    
+    st.markdown(f"""
+    <div style="background: linear-gradient(135deg, rgba(0, 212, 255, 0.1), rgba(0, 180, 216, 0.05)); border: 2px solid rgba(0, 212, 255, 0.3); border-radius: 15px; padding: 15px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+            <div>
+                <span style="font-family: 'Orbitron', sans-serif; color: #00d4ff; font-size: 1.1rem;">📆 ONE-YEAR PROGRAM</span>
+                <span style="color: #90e0ef; font-size: 0.9rem; margin-left: 15px;">{workout_days} workout days planned</span>
+            </div>
+        </div>
+        <div style="color: #48cae4; font-size: 0.8rem; margin-top: 10px;">
+            🗓️ Progressive training: Foundation → Beginner → Intermediate → Advanced → Peak Performance
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Reset button with confirmation
+    col_reset1, col_reset2, col_reset3 = st.columns([2, 1, 2])
+    with col_reset2:
+        if st.button("🔄 Generate New Year", use_container_width=True, help="Clear and regenerate a full year of workouts"):
+            utils.clear_calendar()
+            utils.populate_sample_workouts()
+            st.success("🎉 New one-year workout plan generated!")
+            st.rerun()
+    
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     
     # Calendar Navigation
     col1, col2, col3 = st.columns([1, 2, 1])
@@ -2055,7 +2141,7 @@ elif page == "📅 Workout Calendar":
     
     # Calendar days
     today = datetime.now()
-    calendar_data = utils.load_calendar()
+    # calendar_data already loaded above
     
     for week in month_days:
         cols = st.columns(7)
