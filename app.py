@@ -9,6 +9,7 @@ from exercise_library import (
     MIXAMO_RESOURCES, get_exercises_by_category, get_exercises_by_difficulty,
     search_exercises, get_all_muscle_groups
 )
+import streamlit.components.v1 as components
 
 # --- APP CONFIGURATION ---
 st.set_page_config(
@@ -17,6 +18,165 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# --- 3D MODEL VIEWER COMPONENT ---
+def render_3d_model_viewer(animation_name="idle", exercise_name="Exercise"):
+    """Render a 3D model viewer with the specified animation"""
+    
+    # Map exercise names to Mixamo animation URLs (using free GLB models)
+    # These are placeholder URLs - in production, you'd use your own hosted models
+    ANIMATION_MODELS = {
+        "squats": {
+            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
+            "poster": "https://fitnessprogramer.com/wp-content/uploads/2021/02/SQUAT.gif"
+        },
+        "push_ups": {
+            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
+            "poster": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Push-up.gif"
+        },
+        "plank": {
+            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
+            "poster": "https://fitnessprogramer.com/wp-content/uploads/2021/02/plank.gif"
+        },
+        "lunges": {
+            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
+            "poster": "https://fitnessprogramer.com/wp-content/uploads/2021/02/Lunges.gif"
+        },
+        "default": {
+            "model": "https://models.readyplayer.me/64bfa15f0e72c63d7c3934a6.glb",
+            "poster": ""
+        }
+    }
+    
+    anim_key = animation_name.lower().replace(" ", "_").replace("-", "_")
+    model_data = ANIMATION_MODELS.get(anim_key, ANIMATION_MODELS["default"])
+    
+    html_content = f'''
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+        <style>
+            body {{
+                margin: 0;
+                padding: 0;
+                background: transparent;
+                overflow: hidden;
+            }}
+            model-viewer {{
+                width: 100%;
+                height: 350px;
+                background: linear-gradient(135deg, rgba(0, 30, 60, 0.9) 0%, rgba(0, 60, 90, 0.8) 100%);
+                border-radius: 15px;
+                border: 2px solid rgba(0, 212, 255, 0.3);
+                box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+            }}
+            model-viewer::part(default-progress-bar) {{
+                background: linear-gradient(90deg, #00d4ff, #00b4d8);
+            }}
+            .controls {{
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-top: 10px;
+                padding: 10px;
+            }}
+            .control-btn {{
+                background: linear-gradient(135deg, #0077b6, #00b4d8);
+                color: white;
+                border: 1px solid rgba(0, 212, 255, 0.5);
+                padding: 8px 16px;
+                border-radius: 20px;
+                cursor: pointer;
+                font-family: 'Rajdhani', sans-serif;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }}
+            .control-btn:hover {{
+                background: linear-gradient(135deg, #00b4d8, #00d4ff);
+                box-shadow: 0 0 15px rgba(0, 212, 255, 0.4);
+                transform: translateY(-2px);
+            }}
+            .model-title {{
+                text-align: center;
+                font-family: 'Orbitron', sans-serif;
+                color: #00d4ff;
+                margin-bottom: 10px;
+                font-size: 1.2rem;
+            }}
+            .fallback-gif {{
+                width: 100%;
+                height: 350px;
+                object-fit: contain;
+                background: linear-gradient(135deg, rgba(0, 30, 60, 0.9) 0%, rgba(0, 60, 90, 0.8) 100%);
+                border-radius: 15px;
+                border: 2px solid rgba(0, 212, 255, 0.3);
+            }}
+        </style>
+    </head>
+    <body>
+        <div class="model-title">🏃‍♀️ {exercise_name} - 3D View</div>
+        
+        <model-viewer 
+            id="exercise-model"
+            src="{model_data['model']}"
+            poster="{model_data['poster']}"
+            alt="{exercise_name} 3D Model"
+            auto-rotate
+            camera-controls
+            touch-action="pan-y"
+            interaction-prompt="auto"
+            ar
+            ar-modes="webxr scene-viewer quick-look"
+            shadow-intensity="1"
+            exposure="1"
+            environment-image="neutral"
+            loading="eager"
+        >
+            <div class="progress-bar hide" slot="progress-bar">
+                <div class="update-bar"></div>
+            </div>
+        </model-viewer>
+        
+        <div class="controls">
+            <button class="control-btn" onclick="toggleRotation()">⏸️ Pause Rotation</button>
+            <button class="control-btn" onclick="resetCamera()">🔄 Reset View</button>
+            <button class="control-btn" onclick="toggleFullscreen()">⛶ Fullscreen</button>
+        </div>
+        
+        <script>
+            const modelViewer = document.getElementById('exercise-model');
+            let isRotating = true;
+            
+            function toggleRotation() {{
+                isRotating = !isRotating;
+                modelViewer.autoRotate = isRotating;
+                event.target.textContent = isRotating ? '⏸️ Pause Rotation' : '▶️ Start Rotation';
+            }}
+            
+            function resetCamera() {{
+                modelViewer.cameraOrbit = '0deg 75deg 105%';
+                modelViewer.fieldOfView = 'auto';
+            }}
+            
+            function toggleFullscreen() {{
+                if (!document.fullscreenElement) {{
+                    modelViewer.requestFullscreen();
+                }} else {{
+                    document.exitFullscreen();
+                }}
+            }}
+            
+            // Touch-friendly zoom and rotate
+            modelViewer.addEventListener('camera-change', () => {{
+                // Smooth camera movements
+            }});
+        </script>
+    </body>
+    </html>
+    '''
+    
+    components.html(html_content, height=450)
 
 # --- FUTURISTIC BLUE THEME CSS FOR JADE ---
 st.markdown("""
@@ -998,8 +1158,475 @@ st.markdown("""
             padding: 20px !important;
         }
     }
+    
+    /* ===== MOBILE BOTTOM NAVIGATION ===== */
+    .mobile-nav {
+        display: none;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(180deg, rgba(13, 27, 42, 0.98), rgba(10, 10, 26, 0.99));
+        border-top: 1px solid rgba(0, 212, 255, 0.3);
+        padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+        z-index: 9999;
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
+    }
+    
+    .mobile-nav-container {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    .mobile-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 12px;
+        border-radius: 15px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        min-width: 60px;
+        text-decoration: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .mobile-nav-item:active {
+        transform: scale(0.92);
+    }
+    
+    .mobile-nav-item.active {
+        background: linear-gradient(135deg, rgba(0, 180, 216, 0.3), rgba(0, 119, 182, 0.3));
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+    }
+    
+    .mobile-nav-icon {
+        font-size: 1.5rem;
+        margin-bottom: 2px;
+        transition: transform 0.2s ease;
+    }
+    
+    .mobile-nav-item.active .mobile-nav-icon {
+        transform: scale(1.15);
+    }
+    
+    .mobile-nav-label {
+        font-family: 'Rajdhani', sans-serif;
+        font-size: 0.65rem;
+        color: #90e0ef;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .mobile-nav-item.active .mobile-nav-label {
+        color: #00d4ff;
+    }
+    
+    /* ===== STREAK SYSTEM STYLES ===== */
+    .streak-container {
+        background: linear-gradient(135deg, rgba(255, 107, 0, 0.15), rgba(255, 165, 0, 0.1));
+        border: 2px solid rgba(255, 165, 0, 0.4);
+        border-radius: 20px;
+        padding: 20px;
+        text-align: center;
+        margin: 15px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .streak-container::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 165, 0, 0.1) 0%, transparent 70%);
+        animation: pulse-glow 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-glow {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50% { opacity: 1; transform: scale(1.1); }
+    }
+    
+    .streak-flames {
+        font-size: 2.5rem;
+        margin-bottom: 5px;
+        animation: flame-dance 0.5s ease-in-out infinite alternate;
+    }
+    
+    @keyframes flame-dance {
+        from { transform: translateY(0) scale(1); }
+        to { transform: translateY(-3px) scale(1.05); }
+    }
+    
+    .streak-number {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3rem;
+        font-weight: 700;
+        color: #ffa500;
+        text-shadow: 0 0 20px rgba(255, 165, 0, 0.5);
+        position: relative;
+        z-index: 1;
+    }
+    
+    .streak-label {
+        font-family: 'Rajdhani', sans-serif;
+        color: #ffcc80;
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+    
+    .streak-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #ffa500, #ff6b00);
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-family: 'Rajdhani', sans-serif;
+        font-weight: 700;
+        font-size: 0.8rem;
+        margin-top: 10px;
+        box-shadow: 0 0 15px rgba(255, 165, 0, 0.4);
+    }
+    
+    /* Calendar streak day styles */
+    .calendar-day.streak-day {
+        background: linear-gradient(135deg, rgba(255, 165, 0, 0.2), rgba(255, 107, 0, 0.1)) !important;
+        border-color: #ffa500 !important;
+        box-shadow: 0 0 10px rgba(255, 165, 0, 0.3);
+    }
+    
+    .calendar-day.completed-day {
+        background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 200, 100, 0.1)) !important;
+        border-color: #00ff88 !important;
+    }
+    
+    .calendar-day.missed-day {
+        background: linear-gradient(135deg, rgba(255, 107, 107, 0.15), rgba(200, 50, 50, 0.1)) !important;
+        border-color: rgba(255, 107, 107, 0.5) !important;
+    }
+    
+    .day-flame {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 0.8rem;
+    }
+    
+    /* Confirm Complete Button */
+    .confirm-btn {
+        background: linear-gradient(135deg, #00ff88, #00cc6a) !important;
+        color: #0a0a1a !important;
+        font-weight: 700 !important;
+        padding: 15px 30px !important;
+        font-size: 1.1rem !important;
+        border-radius: 30px !important;
+        box-shadow: 0 5px 25px rgba(0, 255, 136, 0.4) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .confirm-btn:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 10px 35px rgba(0, 255, 136, 0.5) !important;
+    }
+    
+    /* ===== PERFORMANCE OPTIMIZATIONS ===== */
+    * {
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+    }
+    
+    /* Hardware acceleration for animations */
+    .mobile-nav-item, .stButton > button, .program-card, .workout-card, .action-card {
+        will-change: transform;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+    
+    /* Reduce motion for users who prefer it */
+    @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+    
+    /* ===== ENHANCED MOBILE STYLES ===== */
+    @media (max-width: 768px) {
+        /* Show mobile nav, hide sidebar */
+        .mobile-nav {
+            display: block !important;
+        }
+        
+        section[data-testid="stSidebar"] {
+            display: none !important;
+        }
+        
+        /* Add bottom padding for content above nav */
+        .main .block-container {
+            padding-bottom: 100px !important;
+        }
+        
+        /* Larger touch targets */
+        .stButton > button {
+            min-height: 48px !important;
+            padding: 12px 24px !important;
+            font-size: 1rem !important;
+        }
+        
+        /* Faster animations on mobile */
+        .program-card, .workout-card, .action-card {
+            transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+        }
+        
+        /* Optimize images */
+        img {
+            content-visibility: auto;
+        }
+        
+        /* Streak container mobile */
+        .streak-container {
+            padding: 15px;
+            margin: 10px 0;
+        }
+        
+        .streak-number {
+            font-size: 2.5rem;
+        }
+        
+        .streak-flames {
+            font-size: 2rem;
+        }
+    }
+    
+    /* iOS safe areas */
+    @supports (padding: max(0px)) {
+        .mobile-nav {
+            padding-bottom: max(8px, env(safe-area-inset-bottom));
+        }
+        
+        .main .block-container {
+            padding-bottom: max(100px, calc(80px + env(safe-area-inset-bottom))) !important;
+        }
+    }
+    
+    /* ===== LOGIN PAGE STYLES ===== */
+    .login-container {
+        max-width: 450px;
+        margin: 50px auto;
+        padding: 40px;
+        background: linear-gradient(135deg, rgba(0, 30, 60, 0.9) 0%, rgba(0, 60, 100, 0.8) 100%);
+        border-radius: 30px;
+        border: 2px solid rgba(0, 212, 255, 0.4);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(0, 212, 255, 0.2);
+        backdrop-filter: blur(20px);
+    }
+    
+    .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .login-avatar {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 20px;
+        background: linear-gradient(135deg, #00d4ff, #0077b6);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+        box-shadow: 0 0 40px rgba(0, 212, 255, 0.5);
+        animation: pulse-avatar 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse-avatar {
+        0%, 100% { box-shadow: 0 0 40px rgba(0, 212, 255, 0.5); }
+        50% { box-shadow: 0 0 60px rgba(0, 212, 255, 0.8); }
+    }
+    
+    .login-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        background: linear-gradient(90deg, #00d4ff, #00b4d8);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .login-subtitle {
+        font-family: 'Rajdhani', sans-serif;
+        color: #90e0ef;
+        font-size: 1rem;
+        letter-spacing: 2px;
+    }
+    
+    .welcome-features {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin: 30px 0;
+    }
+    
+    .feature-item {
+        background: rgba(0, 119, 182, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 15px;
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .feature-icon {
+        font-size: 2rem;
+        margin-bottom: 5px;
+    }
+    
+    .feature-text {
+        font-family: 'Rajdhani', sans-serif;
+        color: #caf0f8;
+        font-size: 0.85rem;
+    }
 </style>
 """, unsafe_allow_html=True)
+
+# --- LOGIN/AUTHENTICATION SYSTEM ---
+def show_login_page():
+    """Display the login page"""
+    st.markdown("""
+    <div class="login-container">
+        <div class="login-header">
+            <div class="login-avatar">💎</div>
+            <div class="login-title">JADE FITNESS</div>
+            <div class="login-subtitle">YOUR TRANSFORMATION STARTS HERE</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Login form
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        st.markdown("### 👋 Welcome, Jade!")
+        st.markdown("*Your personal fitness sanctuary awaits*")
+        
+        # Features showcase
+        st.markdown("""
+        <div class="welcome-features">
+            <div class="feature-item">
+                <div class="feature-icon">💪</div>
+                <div class="feature-text">Workout Programs</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">📅</div>
+                <div class="feature-text">Smart Calendar</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🔥</div>
+                <div class="feature-text">Streak Tracking</div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">🎮</div>
+                <div class="feature-text">3D Exercises</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Simple PIN or password entry
+        st.markdown("---")
+        password = st.text_input("🔐 Enter your PIN (default: 1234)", type="password", key="login_pin")
+        
+        if st.button("✨ Enter My Fitness Hub", use_container_width=True, type="primary"):
+            if password == "1234" or password == "jade" or password == "":
+                st.session_state.logged_in = True
+                st.session_state.user_name = "Jade"
+                # Initialize calendar and populate with sample workouts if empty
+                utils.init_calendar()
+                utils.populate_sample_workouts()
+                st.balloons()
+                st.rerun()
+            else:
+                st.error("❌ Incorrect PIN. Try: 1234")
+        
+        st.markdown("---")
+        st.markdown("<p style='text-align: center; color: #90e0ef; font-size: 0.8rem;'>Hint: Default PIN is 1234</p>", unsafe_allow_html=True)
+
+# Check if user is logged in
+if 'logged_in' not in st.session_state:
+    st.session_state.logged_in = False
+
+# Show login page if not logged in
+if not st.session_state.logged_in:
+    show_login_page()
+    st.stop()
+
+# --- MOBILE BOTTOM NAVIGATION ---
+# This creates a fixed bottom navigation bar for mobile devices
+def get_nav_active_class(nav_item, current_page):
+    """Return 'active' class if this is the current page"""
+    page_map = {
+        'home': '🏠 Home',
+        'calendar': '📅 Workout Calendar',
+        'programs': '💪 Workout Programs',
+        'library': '📚 Exercise Library',
+        'collection': '🎬 My Collection'
+    }
+    return 'active' if page_map.get(nav_item) == current_page else ''
+
+# Get current page from session state
+current_nav_page = st.session_state.get('nav_page', '🏠 Home')
+
+# Render mobile navigation HTML
+st.markdown(f"""
+<div class="mobile-nav" id="mobile-nav">
+    <div class="mobile-nav-item {'active' if current_nav_page == '🏠 Home' else ''}" onclick="window.location.href='?nav=home'">
+        <span class="mobile-nav-icon">🏠</span>
+        <span class="mobile-nav-label">Home</span>
+    </div>
+    <div class="mobile-nav-item {'active' if current_nav_page == '📅 Workout Calendar' else ''}" onclick="window.location.href='?nav=calendar'">
+        <span class="mobile-nav-icon">📅</span>
+        <span class="mobile-nav-label">Calendar</span>
+    </div>
+    <div class="mobile-nav-item {'active' if current_nav_page == '💪 Workout Programs' else ''}" onclick="window.location.href='?nav=programs'">
+        <span class="mobile-nav-icon">💪</span>
+        <span class="mobile-nav-label">Programs</span>
+    </div>
+    <div class="mobile-nav-item {'active' if current_nav_page == '📚 Exercise Library' else ''}" onclick="window.location.href='?nav=library'">
+        <span class="mobile-nav-icon">📚</span>
+        <span class="mobile-nav-label">Library</span>
+    </div>
+    <div class="mobile-nav-item {'active' if current_nav_page == '🎬 My Collection' else ''}" onclick="window.location.href='?nav=collection'">
+        <span class="mobile-nav-icon">🎬</span>
+        <span class="mobile-nav-label">Videos</span>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# Handle URL query parameters for mobile navigation
+query_params = st.query_params
+if 'nav' in query_params:
+    nav_map = {
+        'home': '🏠 Home',
+        'calendar': '📅 Workout Calendar', 
+        'programs': '💪 Workout Programs',
+        'library': '📚 Exercise Library',
+        'collection': '🎬 My Collection'
+    }
+    requested_page = nav_map.get(query_params['nav'])
+    if requested_page and requested_page != st.session_state.get('nav_page'):
+        st.session_state.nav_page = requested_page
+        st.query_params.clear()
+        st.rerun()
 
 # --- MOTIVATIONAL QUOTES ---
 quotes = [
@@ -1053,16 +1680,21 @@ with st.sidebar:
     
     nav_options = ["🏠 Home", "📅 Workout Calendar", "💪 Workout Programs", "📚 Exercise Library", "🎬 My Collection"]
     
+    # Create a callback function to update session state
+    def on_nav_change():
+        st.session_state.nav_page = st.session_state.main_nav
+    
     page = st.radio(
         "Choose a section:",
         nav_options,
         index=nav_options.index(st.session_state.nav_page) if st.session_state.nav_page in nav_options else 0,
         label_visibility="collapsed",
-        key="main_nav"
+        key="main_nav",
+        on_change=on_nav_change
     )
     
-    # Update session state when radio changes
-    st.session_state.nav_page = page
+    # Use session state as the source of truth for page
+    page = st.session_state.nav_page
     
     st.markdown("---")
     
@@ -1088,6 +1720,25 @@ with st.sidebar:
             <div style="font-family: 'Rajdhani', sans-serif; color: #90e0ef; font-size: 0.7rem;">SCHEDULED</div>
         </div>
         """, unsafe_allow_html=True)
+    
+    # Streak display in sidebar
+    streak_data = utils.get_streak_data()
+    st.markdown("### 🔥 Current Streak")
+    st.markdown(f"""
+    <div style="text-align: center; padding: 15px; background: linear-gradient(135deg, rgba(255, 107, 0, 0.15), rgba(255, 165, 0, 0.1)); border-radius: 15px; border: 2px solid rgba(255, 165, 0, 0.4);">
+        <div style="font-size: 2rem;">{'🔥' * min(streak_data['current_streak'], 5) if streak_data['current_streak'] > 0 else '💪'}</div>
+        <div style="font-family: 'Orbitron', sans-serif; font-size: 2rem; color: #ffa500;">{streak_data['current_streak']}</div>
+        <div style="font-family: 'Rajdhani', sans-serif; color: #ffcc80; font-size: 0.8rem;">DAY STREAK</div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Logout button
+    if st.button("🚪 Logout", use_container_width=True):
+        st.session_state.logged_in = False
+        st.session_state.nav_page = "🏠 Home"
+        st.rerun()
 
 # --- MAIN CONTENT ---
 
@@ -1108,6 +1759,65 @@ if page == "🏠 Home":
         </div>
     </div>
     """, unsafe_allow_html=True)
+    
+    # 🔥 STREAK DISPLAY
+    streak_data = utils.get_streak_data()
+    current_streak = streak_data['current_streak']
+    best_streak = streak_data['best_streak']
+    streak_status = streak_data['streak_status']
+    
+    # Determine streak message and flame animation
+    if current_streak >= 7:
+        flame_emoji = "🔥🔥🔥"
+        streak_badge = "UNSTOPPABLE!"
+    elif current_streak >= 3:
+        flame_emoji = "🔥🔥"
+        streak_badge = "ON FIRE!"
+    elif current_streak >= 1:
+        flame_emoji = "🔥"
+        streak_badge = "KEEP GOING!"
+    else:
+        flame_emoji = "💪"
+        streak_badge = "START TODAY!"
+    
+    # Streak status message
+    if streak_status == 'completed_today':
+        status_msg = "✅ Today's workout complete!"
+    elif streak_status == 'pending_today':
+        status_msg = "⏳ Complete today's workout to keep your streak!"
+    elif streak_status == 'at_risk':
+        status_msg = "⚠️ Don't break your streak - workout today!"
+    else:
+        status_msg = "Start a new streak today!"
+    
+    col_streak1, col_streak2 = st.columns([2, 1])
+    
+    with col_streak1:
+        st.markdown(f"""
+        <div class="streak-container">
+            <div class="streak-flames">{flame_emoji}</div>
+            <div class="streak-number">{current_streak}</div>
+            <div class="streak-label">DAY STREAK</div>
+            <div class="streak-badge">{streak_badge}</div>
+            <p style="color: #ffcc80; font-size: 0.85rem; margin-top: 10px; position: relative; z-index: 1;">{status_msg}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col_streak2:
+        st.markdown(f"""
+        <div style="background: rgba(0, 119, 182, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 15px; padding: 15px; text-align: center; height: 100%;">
+            <div style="margin-bottom: 15px;">
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: #00d4ff;">🏆 {best_streak}</div>
+                <div style="font-family: 'Rajdhani', sans-serif; color: #90e0ef; font-size: 0.75rem; text-transform: uppercase;">Best Streak</div>
+            </div>
+            <div>
+                <div style="font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: #00ff88;">{streak_data['total_completed']}</div>
+                <div style="font-family: 'Rajdhani', sans-serif; color: #90e0ef; font-size: 0.75rem; text-transform: uppercase;">Total Completed</div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     
     # Today's Workout Section
     today_str = datetime.now().strftime("%Y-%m-%d")
@@ -1218,6 +1928,23 @@ elif page == "📅 Workout Calendar":
     st.markdown('<h1 class="main-header">📅 WORKOUT CALENDAR</h1>', unsafe_allow_html=True)
     st.markdown('<p class="sub-header">PLAN YOUR FITNESS JOURNEY</p>', unsafe_allow_html=True)
     
+    # 🔥 STREAK DISPLAY AT TOP OF CALENDAR
+    streak_data = utils.get_streak_data()
+    current_streak = streak_data['current_streak']
+    streak_status = streak_data['streak_status']
+    
+    # Mini streak display for calendar page
+    col_s1, col_s2, col_s3 = st.columns([1, 2, 1])
+    with col_s2:
+        flame_emoji = "🔥🔥🔥" if current_streak >= 7 else ("🔥🔥" if current_streak >= 3 else ("🔥" if current_streak >= 1 else "💪"))
+        st.markdown(f"""
+        <div style="background: linear-gradient(135deg, rgba(255, 107, 0, 0.15), rgba(255, 165, 0, 0.1)); border: 2px solid rgba(255, 165, 0, 0.4); border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 20px;">
+            <span style="font-size: 1.5rem;">{flame_emoji}</span>
+            <span style="font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: #ffa500; margin: 0 10px;">{current_streak}</span>
+            <span style="font-family: 'Rajdhani', sans-serif; color: #ffcc80; font-size: 0.9rem; text-transform: uppercase;">Day Streak</span>
+        </div>
+        """, unsafe_allow_html=True)
+    
     # Initialize calendar
     utils.init_calendar()
     
@@ -1282,22 +2009,47 @@ elif page == "📅 Workout Calendar":
                     st.markdown("<div style='min-height: 100px;'></div>", unsafe_allow_html=True)
                 else:
                     date_str = f"{st.session_state.calendar_year}-{st.session_state.calendar_month:02d}-{day:02d}"
+                    date_obj = datetime(st.session_state.calendar_year, st.session_state.calendar_month, day).date()
                     is_today = (day == today.day and 
                                st.session_state.calendar_month == today.month and 
                                st.session_state.calendar_year == today.year)
                     has_workouts = date_str in calendar_data and len(calendar_data[date_str]) > 0
                     workout_count = len(calendar_data.get(date_str, []))
                     
-                    border_color = "#00d4ff" if is_today else ("rgba(0, 212, 255, 0.5)" if has_workouts else "rgba(0, 212, 255, 0.2)")
-                    bg_color = "rgba(0, 180, 216, 0.2)" if is_today else ("rgba(0, 212, 255, 0.1)" if has_workouts else "rgba(0, 119, 182, 0.1)")
+                    # Check completion status for streak visualization
+                    workouts = calendar_data.get(date_str, [])
+                    all_completed = all(w.get('completed', False) for w in workouts) if workouts else False
+                    is_past = date_obj < today.date()
                     
-                    workout_dots = "".join([f"<span class='calendar-workout-indicator'></span>" for _ in range(min(workout_count, 3))])
+                    # Determine colors based on completion status
+                    if all_completed and has_workouts:
+                        # Completed - green/gold streak color
+                        border_color = "#ffa500"  # Orange for streak
+                        bg_color = "linear-gradient(135deg, rgba(255, 165, 0, 0.15), rgba(0, 255, 136, 0.1))"
+                        status_icon = "🔥"
+                    elif is_past and has_workouts and not all_completed:
+                        # Missed - red tint
+                        border_color = "#ff6b6b"
+                        bg_color = "rgba(255, 107, 107, 0.1)"
+                        status_icon = "❌"
+                    elif is_today:
+                        border_color = "#00d4ff"
+                        bg_color = "rgba(0, 180, 216, 0.2)"
+                        status_icon = "⭐" if has_workouts else ""
+                    elif has_workouts:
+                        border_color = "rgba(0, 212, 255, 0.5)"
+                        bg_color = "rgba(0, 212, 255, 0.1)"
+                        status_icon = "📅"
+                    else:
+                        border_color = "rgba(0, 212, 255, 0.2)"
+                        bg_color = "rgba(0, 119, 182, 0.1)"
+                        status_icon = ""
                     
                     st.markdown(f"""
-                    <div style="background: {bg_color}; border: 1px solid {border_color}; border-radius: 10px; padding: 10px; min-height: 80px; text-align: center; transition: all 0.3s ease;">
-                        <div style="font-family: 'Orbitron', sans-serif; color: {'#00d4ff' if is_today else '#caf0f8'}; font-size: 1.2rem; font-weight: {'700' if is_today else '400'};">{day}</div>
-                        <div style="margin-top: 5px;">{workout_dots}</div>
-                        <div style="color: #90e0ef; font-size: 0.7rem; margin-top: 5px;">{f'{workout_count} workout{"s" if workout_count != 1 else ""}' if has_workouts else ''}</div>
+                    <div style="background: {bg_color}; border: 2px solid {border_color}; border-radius: 10px; padding: 10px; min-height: 80px; text-align: center; transition: all 0.3s ease;">
+                        <div style="font-family: 'Orbitron', sans-serif; color: {'#00d4ff' if is_today else ('#ffa500' if all_completed and has_workouts else '#caf0f8')}; font-size: 1.2rem; font-weight: {'700' if is_today else '400'};">{day}</div>
+                        <div style="font-size: 1rem; margin-top: 3px;">{status_icon}</div>
+                        <div style="color: {'#ffa500' if all_completed and has_workouts else ('#ff6b6b' if is_past and has_workouts and not all_completed else '#90e0ef')}; font-size: 0.65rem; margin-top: 3px;">{f'{workout_count} ✓' if all_completed and has_workouts else (f'{workout_count} workout{"s" if workout_count != 1 else ""}' if has_workouts else '')}</div>
                     </div>
                     """, unsafe_allow_html=True)
     
@@ -1345,6 +2097,31 @@ elif page == "📅 Workout Calendar":
     date_workouts = utils.get_workouts_for_date(view_date_str)
     
     if date_workouts:
+        # Check if any workouts are incomplete
+        has_incomplete = any(not w.get('completed', False) for w in date_workouts)
+        all_complete = all(w.get('completed', False) for w in date_workouts)
+        
+        # Show "Confirm All Complete" button if there are incomplete workouts
+        if has_incomplete:
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 200, 100, 0.05)); border: 2px solid rgba(0, 255, 136, 0.3); border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px;">
+                <p style="color: #90e0ef; margin-bottom: 10px;">Complete all workouts to maintain your streak! 🔥</p>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            if st.button("✅ Mark All as Complete", key=f"complete_all_{view_date_str}", use_container_width=True, type="primary"):
+                utils.confirm_workout_completed(view_date_str)
+                st.success("🎉 All workouts marked complete! Your streak continues!")
+                st.balloons()
+                st.rerun()
+        elif all_complete:
+            st.markdown(f"""
+            <div style="background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 200, 100, 0.1)); border: 2px solid rgba(0, 255, 136, 0.4); border-radius: 12px; padding: 15px; text-align: center; margin-bottom: 15px;">
+                <span style="font-size: 1.5rem;">🏆</span>
+                <span style="font-family: 'Rajdhani', sans-serif; color: #00ff88; font-size: 1.1rem; margin-left: 10px;">All workouts complete for this day!</span>
+            </div>
+            """, unsafe_allow_html=True)
+        
         for idx, workout in enumerate(date_workouts):
             with st.expander(f"{'✅' if workout.get('completed') else '⏳'} {workout.get('name', 'Workout')} - {workout.get('type', '')}"):
                 st.write(f"**Duration:** {workout.get('duration', 'Not specified')}")
@@ -1539,22 +2316,57 @@ elif page == "💪 Workout Programs":
         # ===== DETAILED SCHEDULE =====
         st.markdown("### 📋 Detailed Schedule")
         
-        for week_name, week_schedule in selected['schedule'].items():
-            st.markdown(f"### 📅 {week_name}")
+        # Check if program has 'phases' (one-year program) or 'schedule' (regular programs)
+        if 'phases' in selected:
+            # One-year transformation program structure
+            for phase_name, phase_data in selected['phases'].items():
+                st.markdown(f"## 🚀 {phase_name}")
+                st.markdown(f"**Focus:** {phase_data['focus']}")
+                st.markdown(f"**Intensity:** {phase_data['intensity']}")
+                st.markdown("---")
+                
+                for week_range, week_schedule in phase_data['weeks'].items():
+                    with st.expander(f"📅 {week_range}", expanded=False):
+                        for day_name, exercises in week_schedule.items():
+                            st.markdown(f"**{day_name}**")
+                            for exercise in exercises:
+                                if exercise['sets'] == 0:
+                                    # Sub-item (like circuit details)
+                                    st.markdown(f"<span style='color: #90e0ef; margin-left: 20px;'>{exercise['name']}</span>", unsafe_allow_html=True)
+                                else:
+                                    rest_info = f" | Rest: {exercise['rest']}" if exercise['rest'] else ""
+                                    st.markdown(f"""
+                                    <div class="exercise-row">
+                                        <span class="exercise-name">{exercise['name']}</span>
+                                        <span class="exercise-details">{exercise['sets']} sets × {exercise['reps']}{rest_info}</span>
+                                    </div>
+                                    """, unsafe_allow_html=True)
+                            st.markdown("---")
             
-            for day_name, day_data in week_schedule.items():
-                with st.expander(f"**{day_name}** - {day_data['focus']}", expanded=False):
-                    st.markdown(f"**🎯 Focus:** {day_data['focus']}")
-                    st.markdown("---")
-                    
-                    for exercise in day_data['exercises']:
-                        rest_info = f" | Rest: {exercise['rest']}" if exercise['rest'] else ""
-                        st.markdown(f"""
-                        <div class="exercise-row">
-                            <span class="exercise-name">{exercise['name']}</span>
-                            <span class="exercise-details">{exercise['sets']} sets × {exercise['reps']}{rest_info}</span>
-                        </div>
-                        """, unsafe_allow_html=True)
+            # Show milestone rewards for one-year program
+            if 'milestone_rewards' in selected:
+                st.markdown("### 🏆 Milestone Rewards")
+                for milestone, reward in selected['milestone_rewards'].items():
+                    st.markdown(f"**{milestone}:** {reward}")
+        
+        elif 'schedule' in selected:
+            # Regular program structure
+            for week_name, week_schedule in selected['schedule'].items():
+                st.markdown(f"### 📅 {week_name}")
+                
+                for day_name, day_data in week_schedule.items():
+                    with st.expander(f"**{day_name}** - {day_data['focus']}", expanded=False):
+                        st.markdown(f"**🎯 Focus:** {day_data['focus']}")
+                        st.markdown("---")
+                        
+                        for exercise in day_data['exercises']:
+                            rest_info = f" | Rest: {exercise['rest']}" if exercise['rest'] else ""
+                            st.markdown(f"""
+                            <div class="exercise-row">
+                                <span class="exercise-name">{exercise['name']}</span>
+                                <span class="exercise-details">{exercise['sets']} sets × {exercise['reps']}{rest_info}</span>
+                            </div>
+                            """, unsafe_allow_html=True)
         
         # Recommended Videos Section
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
@@ -1703,8 +2515,8 @@ elif page == "📚 Exercise Library":
         
         st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
         
-        # Instructions tabs
-        tab1, tab2, tab3, tab4 = st.tabs(["📋 Instructions", "⚠️ Common Mistakes", "💡 Tips", "🎬 Video"])
+        # Instructions tabs - now with 3D View
+        tab1, tab2, tab3, tab4, tab5 = st.tabs(["📋 Instructions", "🎮 3D View", "⚠️ Common Mistakes", "💡 Tips", "🎬 Video"])
         
         with tab1:
             st.markdown("### Setup")
@@ -1723,6 +2535,28 @@ elif page == "📚 Exercise Library":
             st.info(f"🫁 {exercise['instructions']['breathing']}")
         
         with tab2:
+            st.markdown("### 🎮 Interactive 3D View")
+            st.markdown("*Rotate, zoom, and explore the exercise from every angle!*")
+            
+            # Render the 3D model viewer
+            render_3d_model_viewer(
+                animation_name=st.session_state.selected_exercise,
+                exercise_name=exercise['name']
+            )
+            
+            st.markdown("""
+            <div style="background: rgba(0, 119, 182, 0.1); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 10px; padding: 15px; margin-top: 15px;">
+                <h4 style="color: #00d4ff; margin-top: 0;">🎮 Controls</h4>
+                <ul style="color: #90e0ef; margin-bottom: 0;">
+                    <li><strong>Rotate:</strong> Click and drag</li>
+                    <li><strong>Zoom:</strong> Scroll or pinch</li>
+                    <li><strong>Pan:</strong> Right-click and drag</li>
+                    <li><strong>AR View:</strong> Available on supported devices</li>
+                </ul>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with tab3:
             st.markdown("### Common Mistakes & Fixes")
             for mistake in exercise['instructions']['common_mistakes']:
                 parts = mistake.split(" - ")
@@ -1736,7 +2570,7 @@ elif page == "📚 Exercise Library":
                 else:
                     st.warning(f"⚠️ {mistake}")
         
-        with tab3:
+        with tab4:
             st.markdown("### Pro Tips")
             st.success(f"💡 {exercise['instructions']['tips']}")
             
@@ -1745,7 +2579,7 @@ elif page == "📚 Exercise Library":
             for muscle in exercise['muscle_groups']:
                 st.progress(0.8, text=f"💪 {muscle}")
         
-        with tab4:
+        with tab5:
             st.markdown("### Video Demonstration")
             if exercise.get('video_url'):
                 if st.button("▶️ Watch Tutorial Video", use_container_width=True):
