@@ -1538,6 +1538,10 @@ with st.sidebar:
     
     nav_options = ["🏠 Home", "📅 Workout Calendar", "💪 Workout Programs", "📚 Exercise Library", "🎬 My Collection"]
     
+    # Initialize nav_page if not exists
+    if 'nav_page' not in st.session_state:
+        st.session_state.nav_page = nav_options[0]
+    
     # Create a callback function to update session state
     def on_nav_change():
         st.session_state.nav_page = st.session_state.main_nav
