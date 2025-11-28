@@ -4,3 +4,4 @@ pandas>=2.0.0
 yt-dlp>=2023.10.13
 supabase>=2.0.0
 python-dotenv>=1.0.0
+streamlit-calendar
