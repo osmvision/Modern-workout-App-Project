@@ -1159,28 +1159,30 @@ st.markdown("""
         }
     }
     
-    /* ===== MOBILE BOTTOM NAVIGATION ===== */
+    /* ===== MOBILE BOTTOM NAVIGATION - HORIZONTAL BAR ===== */
     .mobile-nav {
         display: none;
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        background: linear-gradient(180deg, rgba(13, 27, 42, 0.98), rgba(10, 10, 26, 0.99));
-        border-top: 1px solid rgba(0, 212, 255, 0.3);
-        padding: 8px 0 max(8px, env(safe-area-inset-bottom));
-        z-index: 9999;
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5);
+        background: linear-gradient(180deg, rgba(10, 15, 30, 0.98) 0%, rgba(5, 10, 20, 0.99) 100%);
+        border-top: 2px solid rgba(0, 212, 255, 0.4);
+        padding: 0;
+        z-index: 99999;
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6), 0 -2px 20px rgba(0, 212, 255, 0.15);
     }
     
     .mobile-nav-container {
         display: flex;
-        justify-content: space-around;
-        align-items: center;
-        max-width: 500px;
-        margin: 0 auto;
+        justify-content: space-evenly;
+        align-items: stretch;
+        width: 100%;
+        max-width: 100%;
+        padding: 0;
+        margin: 0;
     }
     
     .mobile-nav-item {
@@ -1188,45 +1190,87 @@ st.markdown("""
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 8px 12px;
-        border-radius: 15px;
+        flex: 1;
+        padding: 12px 8px;
+        padding-bottom: max(12px, env(safe-area-inset-bottom));
         cursor: pointer;
-        transition: all 0.2s ease;
-        min-width: 60px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         text-decoration: none;
         -webkit-tap-highlight-color: transparent;
+        position: relative;
+        background: transparent;
+        border: none;
+        min-height: 65px;
+    }
+    
+    .mobile-nav-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%) scaleX(0);
+        width: 50%;
+        height: 3px;
+        background: linear-gradient(90deg, #00d4ff, #00b4d8);
+        border-radius: 0 0 3px 3px;
+        transition: transform 0.3s ease;
+    }
+    
+    .mobile-nav-item.active::before {
+        transform: translateX(-50%) scaleX(1);
     }
     
     .mobile-nav-item:active {
-        transform: scale(0.92);
+        transform: scale(0.9);
+        background: rgba(0, 212, 255, 0.1);
     }
     
     .mobile-nav-item.active {
-        background: linear-gradient(135deg, rgba(0, 180, 216, 0.3), rgba(0, 119, 182, 0.3));
-        box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        background: linear-gradient(180deg, rgba(0, 212, 255, 0.15) 0%, rgba(0, 180, 216, 0.05) 100%);
     }
     
     .mobile-nav-icon {
-        font-size: 1.5rem;
-        margin-bottom: 2px;
-        transition: transform 0.2s ease;
+        font-size: 1.6rem;
+        margin-bottom: 4px;
+        transition: all 0.2s ease;
+        filter: grayscale(30%);
     }
     
     .mobile-nav-item.active .mobile-nav-icon {
-        transform: scale(1.15);
+        transform: scale(1.1) translateY(-2px);
+        filter: grayscale(0%) drop-shadow(0 0 8px rgba(0, 212, 255, 0.5));
     }
     
     .mobile-nav-label {
         font-family: 'Rajdhani', sans-serif;
-        font-size: 0.65rem;
+        font-size: 0.7rem;
         color: #90e0ef;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
+        transition: all 0.2s ease;
+        opacity: 0.8;
     }
     
     .mobile-nav-item.active .mobile-nav-label {
         color: #00d4ff;
+        opacity: 1;
+        font-weight: 700;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+    }
+    
+    /* Active indicator dot */
+    .mobile-nav-item.active::after {
+        content: '';
+        position: absolute;
+        bottom: max(8px, env(safe-area-inset-bottom));
+        left: 50%;
+        transform: translateX(-50%);
+        width: 5px;
+        height: 5px;
+        background: #00d4ff;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #00d4ff;
     }
     
     /* ===== STREAK SYSTEM STYLES ===== */
@@ -1364,18 +1408,31 @@ st.markdown("""
     
     /* ===== ENHANCED MOBILE STYLES ===== */
     @media (max-width: 768px) {
-        /* Show mobile nav, hide sidebar */
+        /* Show horizontal bottom nav, hide sidebar completely */
         .mobile-nav {
             display: block !important;
         }
         
         section[data-testid="stSidebar"] {
             display: none !important;
+            width: 0 !important;
+            min-width: 0 !important;
+        }
+        
+        [data-testid="stSidebarNav"] {
+            display: none !important;
         }
         
         /* Add bottom padding for content above nav */
         .main .block-container {
-            padding-bottom: 100px !important;
+            padding-bottom: 90px !important;
+            padding-left: 1rem !important;
+            padding-right: 1rem !important;
+        }
+        
+        /* Full width content */
+        .main {
+            margin-left: 0 !important;
         }
         
         /* Larger touch targets */
@@ -1583,30 +1640,32 @@ def get_nav_active_class(nav_item, current_page):
 # Get current page from session state
 current_nav_page = st.session_state.get('nav_page', '🏠 Home')
 
-# Render mobile navigation HTML
+# Render mobile navigation HTML - Horizontal Bottom Bar
 st.markdown(f"""
-<div class="mobile-nav" id="mobile-nav">
-    <div class="mobile-nav-item {'active' if current_nav_page == '🏠 Home' else ''}" onclick="window.location.href='?nav=home'">
-        <span class="mobile-nav-icon">🏠</span>
-        <span class="mobile-nav-label">Home</span>
+<nav class="mobile-nav" id="mobile-nav" role="navigation" aria-label="Main navigation">
+    <div class="mobile-nav-container">
+        <a class="mobile-nav-item {'active' if current_nav_page == '🏠 Home' else ''}" href="?nav=home" aria-label="Home" aria-current="{'page' if current_nav_page == '🏠 Home' else 'false'}">
+            <span class="mobile-nav-icon">🏠</span>
+            <span class="mobile-nav-label">Home</span>
+        </a>
+        <a class="mobile-nav-item {'active' if current_nav_page == '📅 Workout Calendar' else ''}" href="?nav=calendar" aria-label="Calendar" aria-current="{'page' if current_nav_page == '📅 Workout Calendar' else 'false'}">
+            <span class="mobile-nav-icon">📅</span>
+            <span class="mobile-nav-label">Calendar</span>
+        </a>
+        <a class="mobile-nav-item {'active' if current_nav_page == '💪 Workout Programs' else ''}" href="?nav=programs" aria-label="Programs" aria-current="{'page' if current_nav_page == '💪 Workout Programs' else 'false'}">
+            <span class="mobile-nav-icon">💪</span>
+            <span class="mobile-nav-label">Programs</span>
+        </a>
+        <a class="mobile-nav-item {'active' if current_nav_page == '📚 Exercise Library' else ''}" href="?nav=library" aria-label="Exercise Library" aria-current="{'page' if current_nav_page == '📚 Exercise Library' else 'false'}">
+            <span class="mobile-nav-icon">📚</span>
+            <span class="mobile-nav-label">Library</span>
+        </a>
+        <a class="mobile-nav-item {'active' if current_nav_page == '🎬 My Collection' else ''}" href="?nav=collection" aria-label="My Collection" aria-current="{'page' if current_nav_page == '🎬 My Collection' else 'false'}">
+            <span class="mobile-nav-icon">🎬</span>
+            <span class="mobile-nav-label">Videos</span>
+        </a>
     </div>
-    <div class="mobile-nav-item {'active' if current_nav_page == '📅 Workout Calendar' else ''}" onclick="window.location.href='?nav=calendar'">
-        <span class="mobile-nav-icon">📅</span>
-        <span class="mobile-nav-label">Calendar</span>
-    </div>
-    <div class="mobile-nav-item {'active' if current_nav_page == '💪 Workout Programs' else ''}" onclick="window.location.href='?nav=programs'">
-        <span class="mobile-nav-icon">💪</span>
-        <span class="mobile-nav-label">Programs</span>
-    </div>
-    <div class="mobile-nav-item {'active' if current_nav_page == '📚 Exercise Library' else ''}" onclick="window.location.href='?nav=library'">
-        <span class="mobile-nav-icon">📚</span>
-        <span class="mobile-nav-label">Library</span>
-    </div>
-    <div class="mobile-nav-item {'active' if current_nav_page == '🎬 My Collection' else ''}" onclick="window.location.href='?nav=collection'">
-        <span class="mobile-nav-icon">🎬</span>
-        <span class="mobile-nav-label">Videos</span>
-    </div>
-</div>
+</nav>
 """, unsafe_allow_html=True)
 
 # Handle URL query parameters for mobile navigation
