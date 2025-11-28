@@ -35,19 +35,18 @@ def get_current_page_from_url():
     """Read page from URL query params - home is default"""
     params = st.query_params
     page_key = params.get('page', 'home')
-    # If no page param, set it to home for consistent URLs
-    if 'page' not in params:
-        st.query_params['page'] = 'home'
     return PAGE_MAPPING.get(page_key, '🏠 Home')
 
 def navigate_to(page_name):
     """Navigate to a new page using query params (creates browser history)"""
     page_key = PAGE_REVERSE_MAPPING.get(page_name, 'home')
+    st.query_params.clear()
     st.query_params['page'] = page_key
     st.rerun()
 
 def go_back():
     """Go back to home page"""
+    st.query_params.clear()
     st.query_params['page'] = 'home'
     st.rerun()
 
@@ -1545,40 +1544,10 @@ with st.sidebar:
 
 # --- BACK BUTTON (for non-home pages) ---
 if page != "🏠 Home":
-    # JavaScript-based back button that uses browser history
-    st.markdown("""
-    <style>
-        .back-btn-container {
-            margin-bottom: 15px;
-        }
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background: rgba(0, 119, 182, 0.2);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 25px;
-            color: #00d4ff;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-        .back-btn:hover {
-            background: rgba(0, 212, 255, 0.3);
-            transform: translateX(-5px);
-            box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
-        }
-    </style>
-    <div class="back-btn-container">
-        <a class="back-btn" href="?page=home">
-            ⬅️ Retour à l'accueil
-        </a>
-    </div>
-    """, unsafe_allow_html=True)
+    if st.button("⬅️ Retour à l'accueil", key="back_to_home_btn"):
+        st.query_params.clear()
+        st.query_params['page'] = 'home'
+        st.rerun()
 
 # --- MAIN CONTENT ---
 
