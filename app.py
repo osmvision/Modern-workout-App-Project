@@ -4,6 +4,11 @@ import pandas as pd
 from datetime import datetime, timedelta
 import calendar
 import random
+from exercise_library import (
+    EXERCISE_LIBRARY, EXERCISE_CATEGORIES, DIFFICULTY_LEVELS,
+    MIXAMO_RESOURCES, get_exercises_by_category, get_exercises_by_difficulty,
+    search_exercises, get_all_muscle_groups
+)
 
 # --- APP CONFIGURATION ---
 st.set_page_config(
@@ -1046,10 +1051,12 @@ with st.sidebar:
     if 'nav_page' not in st.session_state:
         st.session_state.nav_page = "🏠 Home"
     
+    nav_options = ["🏠 Home", "📅 Workout Calendar", "💪 Workout Programs", "📚 Exercise Library", "🎬 My Collection"]
+    
     page = st.radio(
         "Choose a section:",
-        ["🏠 Home", "📅 Workout Calendar", "💪 Workout Programs", "🎬 My Collection"],
-        index=["🏠 Home", "📅 Workout Calendar", "💪 Workout Programs", "🎬 My Collection"].index(st.session_state.nav_page),
+        nav_options,
+        index=nav_options.index(st.session_state.nav_page) if st.session_state.nav_page in nav_options else 0,
         label_visibility="collapsed",
         key="main_nav"
     )
@@ -1588,6 +1595,202 @@ elif page == "💪 Workout Programs":
                         st.video(url)
         else:
             st.info("📺 Video recommendations coming soon!")
+
+# ===== EXERCISE LIBRARY PAGE =====
+elif page == "📚 Exercise Library":
+    st.markdown('<h1 class="main-header">📚 EXERCISE LIBRARY</h1>', unsafe_allow_html=True)
+    st.markdown('<p class="sub-header">LEARN PROPER FORM WITH GIF DEMONSTRATIONS</p>', unsafe_allow_html=True)
+    
+    # Search and Filter Section
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        search_query = st.text_input("🔍 Search exercises", placeholder="Search by name or muscle group...")
+    with col2:
+        category_filter = st.selectbox("📂 Category", EXERCISE_CATEGORIES)
+    with col3:
+        difficulty_filter = st.selectbox("📊 Difficulty", DIFFICULTY_LEVELS)
+    
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    
+    # Get filtered exercises
+    if search_query:
+        exercises = search_exercises(search_query)
+    else:
+        exercises = EXERCISE_LIBRARY.copy()
+    
+    # Apply category filter
+    if category_filter != "All":
+        exercises = {k: v for k, v in exercises.items() if v["category"] == category_filter}
+    
+    # Apply difficulty filter
+    if difficulty_filter != "All":
+        exercises = {k: v for k, v in exercises.items() if v["difficulty"] == difficulty_filter}
+    
+    # Display exercise count
+    st.markdown(f"### 💪 {len(exercises)} Exercises Found")
+    
+    # Initialize selected exercise in session state
+    if 'selected_exercise' not in st.session_state:
+        st.session_state.selected_exercise = None
+    
+    # Display exercise list or selected exercise
+    if st.session_state.selected_exercise is None:
+        # Display exercise cards in grid
+        exercise_list = list(exercises.items())
+        
+        for i in range(0, len(exercise_list), 3):
+            cols = st.columns(3)
+            for j in range(3):
+                if i + j < len(exercise_list):
+                    key, exercise = exercise_list[i + j]
+                    with cols[j]:
+                        # Exercise card
+                        st.markdown(f"""
+                        <div class="program-card" style="text-align: center; min-height: 320px;">
+                            <div style="font-size: 2rem; margin-bottom: 10px;">
+                                {'🦵' if exercise['category'] == 'Lower Body' else '💪' if exercise['category'] == 'Upper Body' else '🎯' if exercise['category'] == 'Core' else '❤️' if exercise['category'] == 'Cardio' else '🧘'}
+                            </div>
+                            <div class="program-title" style="font-size: 1.1rem;">{exercise['name']}</div>
+                            <div class="program-meta" style="justify-content: center; margin: 10px 0;">
+                                <span class="program-tag">{exercise['category']}</span>
+                                <span class="program-tag">{exercise['difficulty']}</span>
+                            </div>
+                            <p style="color: #90e0ef; font-size: 0.85rem; margin: 10px 0;">
+                                {', '.join(exercise['muscle_groups'][:3])}
+                            </p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        if st.button(f"📖 View Exercise", key=f"view_ex_{key}", use_container_width=True):
+                            st.session_state.selected_exercise = key
+                            st.rerun()
+    
+    else:
+        # Display selected exercise details
+        exercise = EXERCISE_LIBRARY[st.session_state.selected_exercise]
+        
+        # Back button
+        if st.button("⬅️ Back to Exercise List"):
+            st.session_state.selected_exercise = None
+            st.rerun()
+        
+        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+        
+        # Exercise header
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.markdown(f"## {exercise['name']}")
+            st.markdown(f"""
+            <div class="program-meta">
+                <span class="program-tag">{exercise['category']}</span>
+                <span class="program-tag">{exercise['difficulty']}</span>
+                <span class="program-tag">{exercise['equipment']}</span>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            st.markdown(f"**Muscle Groups:** {', '.join(exercise['muscle_groups'])}")
+            st.markdown(f"**Recommended:** {exercise['sets_range']} sets × {exercise['reps_range']}")
+        
+        with col2:
+            # Display GIF
+            st.markdown("### 🎬 Demo")
+            try:
+                st.image(exercise['gif_url'], use_container_width=True)
+            except:
+                st.info("GIF loading... Click the video button below for a demonstration.")
+        
+        st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+        
+        # Instructions tabs
+        tab1, tab2, tab3, tab4 = st.tabs(["📋 Instructions", "⚠️ Common Mistakes", "💡 Tips", "🎬 Video"])
+        
+        with tab1:
+            st.markdown("### Setup")
+            st.markdown(f"*{exercise['instructions']['setup']}*")
+            
+            st.markdown("### Step-by-Step Execution")
+            for i, step in enumerate(exercise['instructions']['execution'], 1):
+                st.markdown(f"""
+                <div class="exercise-row">
+                    <span class="exercise-name">Step {i}</span>
+                    <span class="exercise-details">{step}</span>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            st.markdown("### Breathing")
+            st.info(f"🫁 {exercise['instructions']['breathing']}")
+        
+        with tab2:
+            st.markdown("### Common Mistakes & Fixes")
+            for mistake in exercise['instructions']['common_mistakes']:
+                parts = mistake.split(" - ")
+                if len(parts) == 2:
+                    st.markdown(f"""
+                    <div style="background: rgba(255, 107, 107, 0.1); border-left: 3px solid #ff6b6b; padding: 10px 15px; margin: 10px 0; border-radius: 0 10px 10px 0;">
+                        <strong style="color: #ff6b6b;">❌ {parts[0]}</strong><br>
+                        <span style="color: #90e0ef;">✅ Fix: {parts[1]}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.warning(f"⚠️ {mistake}")
+        
+        with tab3:
+            st.markdown("### Pro Tips")
+            st.success(f"💡 {exercise['instructions']['tips']}")
+            
+            # Muscle target visualization
+            st.markdown("### Muscles Targeted")
+            for muscle in exercise['muscle_groups']:
+                st.progress(0.8, text=f"💪 {muscle}")
+        
+        with tab4:
+            st.markdown("### Video Demonstration")
+            if exercise.get('video_url'):
+                if st.button("▶️ Watch Tutorial Video", use_container_width=True):
+                    st.video(exercise['video_url'])
+            else:
+                st.info("Video coming soon!")
+    
+    st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
+    
+    # Mixamo Resources Section
+    with st.expander("🎮 3D Animation Resources (Mixamo)", expanded=False):
+        st.markdown(f"""
+        ### About Mixamo
+        {MIXAMO_RESOURCES['about']}
+        
+        **🔗 Website:** [{MIXAMO_RESOURCES['website']}]({MIXAMO_RESOURCES['website']})
+        
+        ### Features
+        """)
+        
+        for feature in MIXAMO_RESOURCES['features']:
+            st.markdown(f"✅ {feature}")
+        
+        st.markdown("### Recommended Characters for Fitness Apps")
+        
+        char_cols = st.columns(4)
+        for i, char in enumerate(MIXAMO_RESOURCES['recommended_characters']):
+            with char_cols[i]:
+                st.markdown(f"""
+                <div class="mini-stat">
+                    <div class="mini-stat-icon">🤖</div>
+                    <div class="mini-stat-value" style="font-size: 0.9rem;">{char['name']}</div>
+                    <div class="mini-stat-label">{char['description']}</div>
+                </div>
+                """, unsafe_allow_html=True)
+        
+        st.markdown("### How to Use Mixamo")
+        for step in MIXAMO_RESOURCES['how_to_use']:
+            st.markdown(f"**{step}**")
+        
+        st.markdown("### Available Fitness Animations")
+        anim_cols = st.columns(5)
+        for i, anim in enumerate(MIXAMO_RESOURCES['fitness_animations']):
+            with anim_cols[i % 5]:
+                st.markdown(f"🎬 {anim}")
 
 # ===== MY COLLECTION PAGE =====
 elif page == "🎬 My Collection":
