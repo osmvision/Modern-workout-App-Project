@@ -84,7 +84,11 @@ def get_workouts():
     """Load all workouts from database"""
     if SUPABASE_ENABLED:
         try:
-            response = supabase.table(WORKOUTS_TABLE).select("*").order('created_at', desc=True).execute()
+            # Try ordering by created_at, fallback to no ordering if column doesn't exist
+            try:
+                response = supabase.table(WORKOUTS_TABLE).select("*").order('created_at', desc=True).execute()
+            except:
+                response = supabase.table(WORKOUTS_TABLE).select("*").execute()
             if response.data:
                 return pd.DataFrame(response.data)
             return pd.DataFrame(columns=['title', 'channel', 'url', 'thumbnail', 'category'])
