@@ -2761,22 +2761,21 @@ st.markdown("""
             display: none !important;
         }
         
-        /* Stylish Bottom Navigation Bar */
+        /* Floating Glassmorphism Bottom Bar */
         .mobile-nav-container {
-            display: block !important;
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            height: 80px !important;
-            background: linear-gradient(180deg, rgba(10, 15, 35, 0.98) 0%, rgba(5, 10, 25, 1) 100%) !important;
-            border-top: 2px solid rgba(0, 212, 255, 0.4) !important;
-            z-index: 999999 !important;
-            backdrop-filter: blur(25px) !important;
-            -webkit-backdrop-filter: blur(25px) !important;
-            box-shadow: 0 -5px 40px rgba(0, 0, 0, 0.6), 0 -2px 20px rgba(0, 212, 255, 0.15) !important;
-            padding: 8px 10px !important;
-            padding-bottom: max(8px, env(safe-area-inset-bottom)) !important;
+            display: block;
+            position: fixed;
+            bottom: 20px;
+            left: 5%;
+            width: 90%;
+            background: rgba(13, 27, 42, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 25px;
+            z-index: 99999;
+            padding: 10px 5px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
         }
         
         /* Horizontal layout */
@@ -2786,7 +2785,6 @@ st.markdown("""
             justify-content: space-around !important;
             align-items: center !important;
             gap: 5px !important;
-            height: 100% !important;
         }
         
         .mobile-nav-container [data-testid="column"] {
@@ -2796,39 +2794,27 @@ st.markdown("""
             text-align: center !important;
         }
         
-        /* Stylish Nav Buttons */
+        /* Nav Buttons */
         .mobile-nav-container .stButton button {
-            width: 100% !important;
-            height: 60px !important;
-            padding: 8px 5px !important;
-            font-size: 1.6rem !important;
-            line-height: 1 !important;
-            background: linear-gradient(180deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 255, 136, 0.05) 100%) !important;
-            border: 1px solid rgba(0, 212, 255, 0.2) !important;
-            border-radius: 16px !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+            width: 100%;
+            padding: 5px 0 !important;
+            font-size: 1.4rem;
+            line-height: 1;
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
             margin: 0 !important;
             color: #90e0ef !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            -webkit-tap-highlight-color: transparent !important;
         }
 
-        .mobile-nav-container .stButton button:hover,
-        .mobile-nav-container .stButton button:active {
-            background: linear-gradient(180deg, rgba(0, 212, 255, 0.3) 0%, rgba(0, 255, 136, 0.15) 100%) !important;
-            border-color: rgba(0, 212, 255, 0.5) !important;
+        .mobile-nav-container .stButton button:hover {
             color: #00d4ff !important;
-            transform: scale(1.05) translateY(-2px) !important;
-            box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3), 0 0 20px rgba(0, 212, 255, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
-        }
-        
-        .mobile-nav-container .stButton button:active {
-            transform: scale(0.95) !important;
+            transform: scale(1.1);
         }
         
         /* Add padding to main content */
         .main .block-container {
-            padding-bottom: 100px !important;
+            padding-bottom: 120px !important;
         }
     }
 </style>
