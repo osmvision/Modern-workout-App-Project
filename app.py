@@ -4,6 +4,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 import calendar
 import random
+from streamlit_calendar import calendar as st_calendar
 from exercise_library import (
     EXERCISE_LIBRARY, EXERCISE_CATEGORIES, DIFFICULTY_LEVELS,
     MIXAMO_RESOURCES, get_exercises_by_category, get_exercises_by_difficulty,
@@ -1542,6 +1543,8 @@ if not st.session_state.logged_in:
 if 'nav_page' not in st.session_state:
     st.session_state.nav_page = '🏠 Home'
 
+current_nav_page = st.session_state.nav_page
+
 # Navigation mapping
 NAV_PAGES = {
     'home': '🏠 Home',
@@ -1550,6 +1553,166 @@ NAV_PAGES = {
     'library': '📚 Exercise Library',
     'collection': '🎬 My Collection'
 }
+
+# Handle navigation from URL params
+query_params = st.query_params
+if 'page' in query_params:
+    requested_page = NAV_PAGES.get(query_params['page'])
+    if requested_page and requested_page != current_nav_page:
+        st.session_state.nav_page = requested_page
+        st.query_params.clear()
+        st.rerun()
+
+# Helper function to get active class
+def get_active_class(nav_key):
+    return "active" if NAV_PAGES.get(nav_key) == current_nav_page else ""
+
+# Inject stylish mobile bottom navigation bar
+st.markdown(f"""
+<style>
+/* ===== STYLISH MOBILE BOTTOM NAVIGATION ===== */
+.mobile-nav-bar {{
+    display: none;
+}}
+
+@media (max-width: 768px) {{
+    .mobile-nav-bar {{
+        display: flex !important;
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 75px !important;
+        background: linear-gradient(180deg, rgba(10, 15, 35, 0.98) 0%, rgba(5, 10, 25, 1) 100%) !important;
+        border-top: 1px solid rgba(0, 212, 255, 0.3) !important;
+        z-index: 999999 !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.5), 0 -2px 15px rgba(0, 212, 255, 0.1) !important;
+        padding: 0 5px !important;
+        padding-bottom: env(safe-area-inset-bottom) !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+    }}
+    
+    .nav-item {{
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-decoration: none !important;
+        padding: 8px 10px !important;
+        border-radius: 16px !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        min-width: 60px !important;
+        position: relative !important;
+        -webkit-tap-highlight-color: transparent !important;
+    }}
+    
+    .nav-item::before {{
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 50% !important;
+        transform: translateX(-50%) scaleX(0) !important;
+        width: 30px !important;
+        height: 3px !important;
+        background: linear-gradient(90deg, #00d4ff, #00ff88) !important;
+        border-radius: 0 0 3px 3px !important;
+        transition: transform 0.3s ease !important;
+    }}
+    
+    .nav-item.active::before {{
+        transform: translateX(-50%) scaleX(1) !important;
+    }}
+    
+    .nav-item:active {{
+        transform: scale(0.92) !important;
+    }}
+    
+    .nav-item.active {{
+        background: linear-gradient(180deg, rgba(0, 212, 255, 0.2) 0%, rgba(0, 255, 136, 0.1) 100%) !important;
+    }}
+    
+    .nav-icon {{
+        font-size: 1.5rem !important;
+        margin-bottom: 3px !important;
+        transition: all 0.3s ease !important;
+        filter: grayscale(40%) !important;
+    }}
+    
+    .nav-item.active .nav-icon {{
+        filter: grayscale(0%) drop-shadow(0 0 8px rgba(0, 212, 255, 0.6)) !important;
+        transform: scale(1.15) translateY(-2px) !important;
+    }}
+    
+    .nav-label {{
+        font-size: 0.6rem !important;
+        font-family: 'Rajdhani', sans-serif !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        color: #90e0ef !important;
+        transition: all 0.3s ease !important;
+        opacity: 0.7 !important;
+    }}
+    
+    .nav-item.active .nav-label {{
+        color: #00d4ff !important;
+        opacity: 1 !important;
+        text-shadow: 0 0 10px rgba(0, 212, 255, 0.5) !important;
+    }}
+    
+    /* Glowing dot indicator */
+    .nav-item.active::after {{
+        content: '' !important;
+        position: absolute !important;
+        bottom: 5px !important;
+        left: 50% !important;
+        transform: translateX(-50%) !important;
+        width: 6px !important;
+        height: 6px !important;
+        background: linear-gradient(135deg, #00d4ff, #00ff88) !important;
+        border-radius: 50% !important;
+        box-shadow: 0 0 10px #00d4ff, 0 0 20px rgba(0, 212, 255, 0.5) !important;
+        animation: pulse-glow 2s ease-in-out infinite !important;
+    }}
+    
+    @keyframes pulse-glow {{
+        0%, 100% {{ opacity: 1; transform: translateX(-50%) scale(1); }}
+        50% {{ opacity: 0.7; transform: translateX(-50%) scale(1.2); }}
+    }}
+    
+    /* Add padding to main content */
+    .main .block-container {{
+        padding-bottom: 100px !important;
+    }}
+}}
+</style>
+
+<nav class="mobile-nav-bar">
+    <a href="?page=home" class="nav-item {get_active_class('home')}">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Home</span>
+    </a>
+    <a href="?page=calendar" class="nav-item {get_active_class('calendar')}">
+        <span class="nav-icon">📅</span>
+        <span class="nav-label">Calendar</span>
+    </a>
+    <a href="?page=programs" class="nav-item {get_active_class('programs')}">
+        <span class="nav-icon">💪</span>
+        <span class="nav-label">Programs</span>
+    </a>
+    <a href="?page=library" class="nav-item {get_active_class('library')}">
+        <span class="nav-icon">📚</span>
+        <span class="nav-label">Library</span>
+    </a>
+    <a href="?page=collection" class="nav-item {get_active_class('collection')}">
+        <span class="nav-icon">🎬</span>
+        <span class="nav-label">Videos</span>
+    </a>
+</nav>
+""", unsafe_allow_html=True)
 
 # --- MOTIVATIONAL QUOTES ---
 quotes = [
@@ -1909,111 +2072,183 @@ elif page == "📅 Workout Calendar":
     
     st.markdown('<div class="section-divider"></div>', unsafe_allow_html=True)
     
-    # Calendar Navigation
-    col1, col2, col3 = st.columns([1, 2, 1])
-    
-    if 'calendar_month' not in st.session_state:
-        st.session_state.calendar_month = datetime.now().month
-    if 'calendar_year' not in st.session_state:
-        st.session_state.calendar_year = datetime.now().year
-    
-    with col1:
-        if st.button("◀️ Previous Month"):
-            if st.session_state.calendar_month == 1:
-                st.session_state.calendar_month = 12
-                st.session_state.calendar_year -= 1
-            else:
-                st.session_state.calendar_month -= 1
-            st.rerun()
-    
-    with col2:
-        month_name = calendar.month_name[st.session_state.calendar_month]
-        st.markdown(f"""
-        <h2 style="text-align: center; color: #00d4ff; font-family: 'Orbitron', sans-serif;">
-            {month_name} {st.session_state.calendar_year}
-        </h2>
-        """, unsafe_allow_html=True)
-    
-    with col3:
-        if st.button("Next Month ▶️"):
-            if st.session_state.calendar_month == 12:
-                st.session_state.calendar_month = 1
-                st.session_state.calendar_year += 1
-            else:
-                st.session_state.calendar_month += 1
-            st.rerun()
-    
-    # Calendar Grid
-    cal = calendar.Calendar(firstweekday=6)  # Sunday start
-    month_days = cal.monthdayscalendar(st.session_state.calendar_year, st.session_state.calendar_month)
-    
-    # Calendar days
+    # Convert calendar data to streamlit-calendar events format
     today = datetime.now()
-    # calendar_data already loaded above
+    calendar_events = []
     
-    # Build calendar HTML for better mobile display
-    days = ["S", "M", "T", "W", "T", "F", "S"]
+    # Color mapping for workout types
+    workout_colors = {
+        "Lower Body": "#ff6b6b",
+        "Upper Body": "#4ecdc4",
+        "HIIT": "#ff9f43",
+        "Cardio": "#ee5a24",
+        "Full Body": "#00d4ff",
+        "Yoga": "#a29bfe",
+        "Pilates": "#fd79a8",
+        "Stretching": "#55efc4",
+        "Core": "#ffeaa7",
+        "Strength": "#74b9ff",
+        "Dance": "#e056fd",
+    }
     
-    calendar_html = """
-    <div class="cal-grid">
+    for date_str, workouts in calendar_data.items():
+        for idx, workout in enumerate(workouts):
+            workout_type = workout.get('type', 'Workout')
+            is_completed = workout.get('completed', False)
+            
+            # Choose color based on type and completion
+            base_color = workout_colors.get(workout_type, "#00d4ff")
+            if is_completed:
+                color = "#00ff88"  # Green for completed
+            else:
+                color = base_color
+            
+            event = {
+                "title": f"{'✅' if is_completed else '💪'} {workout.get('name', 'Workout')}",
+                "start": date_str,
+                "end": date_str,
+                "backgroundColor": color,
+                "borderColor": color,
+                "textColor": "#ffffff" if not is_completed else "#000000",
+                "extendedProps": {
+                    "type": workout_type,
+                    "duration": workout.get('duration', ''),
+                    "notes": workout.get('notes', ''),
+                    "completed": is_completed,
+                    "index": idx
+                }
+            }
+            calendar_events.append(event)
+    
+    # Streamlit Calendar Options - Dark futuristic theme
+    calendar_options = {
+        "initialView": "dayGridMonth",
+        "headerToolbar": {
+            "left": "prev,next today",
+            "center": "title",
+            "right": "dayGridMonth,timeGridWeek,listMonth"
+        },
+        "slotMinTime": "06:00:00",
+        "slotMaxTime": "22:00:00",
+        "initialDate": today.strftime("%Y-%m-%d"),
+        "editable": False,
+        "selectable": True,
+        "selectMirror": True,
+        "dayMaxEvents": 3,
+        "weekends": True,
+        "nowIndicator": True,
+        "height": 650,
+        "eventDisplay": "block",
+        "displayEventTime": False,
+    }
+    
+    # Custom CSS for the calendar to match our dark theme
+    custom_css = """
+        .fc {
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .fc-theme-standard td, .fc-theme-standard th {
+            border-color: rgba(0, 212, 255, 0.2);
+        }
+        .fc-theme-standard .fc-scrollgrid {
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        .fc .fc-daygrid-day-number {
+            color: #90e0ef;
+            font-weight: 600;
+        }
+        .fc .fc-col-header-cell-cushion {
+            color: #00d4ff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 600;
+        }
+        .fc-day-today {
+            background: rgba(0, 212, 255, 0.15) !important;
+        }
+        .fc-day-today .fc-daygrid-day-number {
+            color: #00d4ff !important;
+            font-weight: 700;
+        }
+        .fc .fc-button-primary {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            border-color: rgba(0, 212, 255, 0.5);
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 600;
+        }
+        .fc .fc-button-primary:hover {
+            background: linear-gradient(135deg, #00b4d8, #00d4ff);
+        }
+        .fc .fc-button-primary:not(:disabled).fc-button-active {
+            background: linear-gradient(135deg, #00d4ff, #48cae4);
+        }
+        .fc-toolbar-title {
+            color: #00d4ff !important;
+            font-family: 'Orbitron', sans-serif !important;
+        }
+        .fc-event {
+            border-radius: 6px;
+            font-size: 0.75rem;
+            padding: 2px 4px;
+            font-weight: 600;
+        }
+        .fc-daygrid-event {
+            margin: 1px 2px;
+        }
+        .fc-h-event {
+            border: none;
+        }
+        .fc .fc-list-event:hover td {
+            background: rgba(0, 212, 255, 0.1);
+        }
+        .fc-list-day-cushion {
+            background: rgba(0, 30, 60, 0.8) !important;
+        }
+        .fc-list-day-text, .fc-list-day-side-text {
+            color: #00d4ff !important;
+        }
+        .fc-popover {
+            background: rgba(10, 15, 30, 0.95);
+            border-color: rgba(0, 212, 255, 0.3);
+        }
+        .fc-popover-header {
+            background: rgba(0, 119, 182, 0.3);
+            color: #00d4ff;
+        }
+        .fc-more-link {
+            color: #00d4ff !important;
+        }
     """
     
-    # Add day headers
-    for day in days:
-        calendar_html += f'<div class="cal-header">{day}</div>'
+    # Render the calendar
+    calendar_result = st_calendar(
+        events=calendar_events,
+        options=calendar_options,
+        custom_css=custom_css,
+        key="fitness_calendar"
+    )
     
-    # Add calendar days
-    for week in month_days:
-        for day in week:
-            if day == 0:
-                calendar_html += '<div class="cal-day cal-day-empty"></div>'
-            else:
-                date_str = f"{st.session_state.calendar_year}-{st.session_state.calendar_month:02d}-{day:02d}"
-                date_obj = datetime(st.session_state.calendar_year, st.session_state.calendar_month, day).date()
-                is_today = (day == today.day and 
-                            st.session_state.calendar_month == today.month and 
-                            st.session_state.calendar_year == today.year)
-                has_workouts = date_str in calendar_data and len(calendar_data[date_str]) > 0
-                
-                # Check completion status
-                workouts = calendar_data.get(date_str, [])
-                all_completed = all(w.get('completed', False) for w in workouts) if workouts else False
-                is_past = date_obj < today.date()
-                
-                # Determine CSS class and icon
-                if is_today:
-                    css_class = "cal-day-today"
-                    icon = "⭐" if has_workouts else "📍"
-                elif all_completed and has_workouts:
-                    css_class = "cal-day-completed"
-                    icon = "🔥"
-                elif is_past and has_workouts and not all_completed:
-                    css_class = "cal-day-missed"
-                    icon = "❌"
-                elif has_workouts:
-                    css_class = "cal-day-workout"
-                    icon = "💪"
-                else:
-                    css_class = "cal-day-normal"
-                    icon = ""
-                
-                calendar_html += f'''
-                <div class="cal-day {css_class}">
-                    <div class="cal-day-num">{day}</div>
-                    <div class="cal-day-icon">{icon}</div>
-                </div>
-                '''
+    # Handle calendar interactions
+    if calendar_result:
+        if "dateClick" in calendar_result:
+            clicked_date = calendar_result["dateClick"]["date"]
+            st.session_state.selected_calendar_date = clicked_date
+        
+        if "eventClick" in calendar_result:
+            event_data = calendar_result["eventClick"]["event"]
+            st.info(f"📋 **{event_data.get('title', 'Workout')}**\n\n"
+                   f"Type: {event_data.get('extendedProps', {}).get('type', 'N/A')}\n\n"
+                   f"Duration: {event_data.get('extendedProps', {}).get('duration', 'N/A')}\n\n"
+                   f"Notes: {event_data.get('extendedProps', {}).get('notes', 'No notes')}")
     
-    calendar_html += '</div>'
-    st.markdown(calendar_html, unsafe_allow_html=True)
-    
-    # Calendar Legend
+    # Legend
     st.markdown("""
-    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin: 15px 0; padding: 10px; background: rgba(0, 30, 60, 0.3); border-radius: 10px;">
-        <span style="color: #90e0ef; font-size: 0.8rem;">📍 Today</span>
-        <span style="color: #90e0ef; font-size: 0.8rem;">💪 Scheduled</span>
-        <span style="color: #ffa500; font-size: 0.8rem;">🔥 Completed</span>
-        <span style="color: #ff6b6b; font-size: 0.8rem;">❌ Missed</span>
+    <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin: 20px 0; padding: 15px; background: rgba(0, 30, 60, 0.4); border-radius: 12px; border: 1px solid rgba(0, 212, 255, 0.2);">
+        <span style="color: #00ff88; font-size: 0.85rem; padding: 5px 10px; background: rgba(0, 255, 136, 0.1); border-radius: 20px;">✅ Completed</span>
+        <span style="color: #ff6b6b; font-size: 0.85rem; padding: 5px 10px; background: rgba(255, 107, 107, 0.1); border-radius: 20px;">🦵 Lower Body</span>
+        <span style="color: #4ecdc4; font-size: 0.85rem; padding: 5px 10px; background: rgba(78, 205, 196, 0.1); border-radius: 20px;">💪 Upper Body</span>
+        <span style="color: #ff9f43; font-size: 0.85rem; padding: 5px 10px; background: rgba(255, 159, 67, 0.1); border-radius: 20px;">⚡ HIIT</span>
+        <span style="color: #a29bfe; font-size: 0.85rem; padding: 5px 10px; background: rgba(162, 155, 254, 0.1); border-radius: 20px;">🧘 Yoga</span>
+        <span style="color: #00d4ff; font-size: 0.85rem; padding: 5px 10px; background: rgba(0, 212, 255, 0.1); border-radius: 20px;">🏋️ Full Body</span>
     </div>
     """, unsafe_allow_html=True)
     
