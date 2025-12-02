@@ -6,7 +6,7 @@ A beautiful, futuristic fitness app designed for Jade with a stunning blue theme
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
 
-## ✨ Features
+## ✨ Features :
 
 ### 🏠 Home Dashboard
 - Personalized greeting based on time of day
@@ -14,14 +14,14 @@ A beautiful, futuristic fitness app designed for Jade with a stunning blue theme
 - Weekly progress overview
 - Daily motivational quotes
 
-### 📅 Workout Calendar
+### 📅 Workout Calendar :
 - Interactive monthly calendar view
 - Schedule workouts for any date
 - Track completed vs pending workouts
 - Add notes and duration to each workout
 - Visual indicators for scheduled days
 
-### 💪 Workout Programs
+### 💪 Workout Programs :
 Curated workout programs designed for women:
 
 1. **💪 Beginner Full Body Tone** - 4 weeks, 3 days/week
@@ -30,13 +30,13 @@ Curated workout programs designed for women:
 4. **🔥 HIIT Fat Burner** - 4 weeks, 4 days/week
 5. **🍑 30 Day Booty Builder** - 30 days, 6 days/week
 
-### 🎬 Video Collection
+### 🎬 Video Collection :
 - Save YouTube workout videos
 - Categorize by workout type
 - Filter and browse your collection
 - Watch videos directly in the app
 
-## 🚀 Getting Started
+## 🚀 Getting Started :
 
 ### Prerequisites
 - Python 3.8+
