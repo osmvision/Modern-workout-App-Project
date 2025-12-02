@@ -2,6 +2,8 @@
 
 A beautiful, futuristic fitness app designed for Jade with a stunning blue theme.
 
+<!-- PR Shark Badge Progress: 1/2 -->
+
 ![Jade Fitness Hub](https://img.shields.io/badge/Made%20with-💙-blue)
 ![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
